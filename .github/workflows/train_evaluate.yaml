@@ -1,0 +1,33 @@
+name: model-training-evaluate
+on: [push]
+jobs:
+  run:
+    runs-on: [ubuntu-latest]
+    container: docker://dvcorg/cml-py3:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: 'Train and Evaluate model'
+        shell: bash
+        env:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          # Install requirements
+          pip install -r requirements.txt
+
+          # Pull data & run-cache from S3 and reproduce pipeline
+          dvc pull --run-cache
+          dvc repro
+
+          # Report metrics
+          echo "## Metrics" >> report.md
+          git fetch --prune
+          dvc metrics diff master --show-md >> report.md
+
+          # Publish confusion matrix diff
+          echo -e "## Plots\n### ROC Curve" >> report.md
+          cml-publish ./results/roc_curve.png --md >> report.md
+          echo -e "\n### Precision and Recall Curve" >> report.md
+          cml-publish ./results/precision_recall_curve.png --md >> report.md
+          cml-send-comment report.md
