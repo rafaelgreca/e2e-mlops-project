@@ -1,0 +1,25 @@
+version: '3'
+
+# creating the default network
+networks:
+  default:
+    driver: bridge
+
+services:
+  # creating the development environment service (which is running the jupyter notebook)
+  dev:
+    image: e2e-dev:latest
+    build:
+      context: ./notebooks
+      dockerfile: ./dev_Dockerfile
+
+    # exposing the port that will be used by MLFlow and Jupyter Notebook
+    ports:
+      - "8888:8888"
+      - "5000:5000"
+    
+    # setting external volumes
+    volumes:
+      - ./credentials.yaml:/e2e-project/credentials.yaml
+      - ./models:/e2e-project/models/
+      - ./data:/e2e-project/data/

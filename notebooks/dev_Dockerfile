@@ -1,0 +1,20 @@
+# using the lastest version of miniconda as a base for the Docker image
+FROM python:3.10.14-slim
+
+# creating the root folder
+RUN mkdir -p /e2e-project/notebooks
+
+# copying all the files within this folder to the newly created folder
+COPY . /e2e-project/notebooks
+
+# setting the curreting directory to be the folder containing the notebooks
+WORKDIR /e2e-project
+
+# updating pip
+RUN pip install --no-cache-dir -U pip
+
+# installing requirements
+RUN pip install -r notebooks/requirements_dev.txt
+
+# running the conda notebook
+CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
