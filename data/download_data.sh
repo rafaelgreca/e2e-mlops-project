@@ -25,7 +25,6 @@ export KAGGLE_USERNAME="$CONFIG_KAGGLE_USERNAME"
 export KAGGLE_KEY="$CONFIG_KAGGLE_KEY"
 s3_bucket="$CONFIG_S3"
 
-
 # creating a folder within the temporary folder where the dataset will be temporarily saved
 mkdir /tmp/e2e-mlops-project/ && cd /tmp/e2e-mlops-project/
 

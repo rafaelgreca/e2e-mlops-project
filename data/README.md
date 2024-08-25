@@ -10,7 +10,7 @@ Before downloading the data, you need to do two steps:
 aws configure
 ```
 
-2. Set your `AWS Credentials` and `Kaggle API Credentials` (used to download the dataset) on the `credentials.yaml` file.
+2. Set your `AWS Credentials` and `Kaggle API Credentials` (used to download the dataset) in the `credentials.yaml` file.
 
 Finally, you can download the dataset using the following command:
 
