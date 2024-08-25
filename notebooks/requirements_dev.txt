@@ -11,3 +11,5 @@ seaborn==0.13.2
 xgboost==2.1.1
 boto3==1.35.0
 jupyter==1.0.0
+kaggle==1.6.17
+awscli==1.34.0
