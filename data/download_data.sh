@@ -21,9 +21,11 @@ function parse_yaml {
 # setting important variables
 eval $(parse_yaml ../credentials.yaml "CONFIG_")
 
+# defining important variables
 export KAGGLE_USERNAME="$CONFIG_KAGGLE_USERNAME"
 export KAGGLE_KEY="$CONFIG_KAGGLE_KEY"
-s3_bucket="$CONFIG_S3"
+export AWS_ACCESS_KEY_ID="$CONFIG_AWS_ACCESS_KEY"
+export AWS_SECRET_ACCESS_KEY="$CONFIG_AWS_SECRET_KEY"
 
 # creating a folder within the temporary folder where the dataset will be temporarily saved
 mkdir /tmp/e2e-mlops-project/ && cd /tmp/e2e-mlops-project/
@@ -41,7 +43,7 @@ rm -f obesity-or-cvd-risk-classifyregressorcluster.zip
 mv ObesityDataSet.csv Original_ObesityDataSet.csv
 
 # copying the csv file to the s3 bucket
-aws s3 cp Original_ObesityDataSet.csv s3://$s3_bucket
+aws s3 cp Original_ObesityDataSet.csv s3://$"$CONFIG_S3"
 
 # deleting the create folder
 cd ~ && rm -rf /tmp/e2e-mlops-project

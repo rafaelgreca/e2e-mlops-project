@@ -1,5 +1,8 @@
-# using the lastest version of miniconda as a base for the Docker image
-FROM python:3.10.14-slim
+# using the lastest version of Ubuntu 22.04 as a base for the Docker image
+FROM ubuntu:22.04
+
+# installing Python and Unzip
+RUN apt-get update && apt-get install -y python3.10 python3.10-venv python3.10-dev python3-pip unzip
 
 # creating the root folder
 RUN mkdir -p /e2e-project/notebooks
