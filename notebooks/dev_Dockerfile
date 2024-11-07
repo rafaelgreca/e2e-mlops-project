@@ -2,7 +2,7 @@
 FROM ubuntu:22.04
 
 # installing Python and Unzip
-RUN apt-get update && apt-get install -y python3.10 python3.10-venv python3.10-dev python3-pip unzip
+RUN apt-get update && apt-get install -y python3.10 python3.10-venv python3.10-dev python3-pip libgomp1
 
 # creating the root folder
 RUN mkdir -p /e2e-project/notebooks
@@ -18,6 +18,3 @@ RUN pip install --no-cache-dir -U pip
 
 # installing requirements
 RUN pip install -r notebooks/requirements_dev.txt
-
-# running the conda notebook
-CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
