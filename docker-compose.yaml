@@ -7,15 +7,37 @@ networks:
 
 services:
   # creating the development environment service (which is running the jupyter notebook)
-  dev:
+  dev-notebook:
     image: e2e-dev:latest
     build:
       context: ./notebooks
       dockerfile: ./dev_Dockerfile
 
+    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+
     # exposing the port that will be used by MLFlow and Jupyter Notebook
     ports:
       - "8888:8888"
+    
+    # setting external volumes
+    volumes:
+      - ./credentials.yaml:/e2e-project/credentials.yaml
+      - ./models:/e2e-project/models/
+      - ./data:/e2e-project/data/
+    
+  dev-mlflow:
+    image: e2e-dev:latest
+    build:
+      context: .
+      dockerfile: ./notebooks/dev_Dockerfile
+
+    depends_on:
+      - dev-notebook
+
+    command: ["mlflow", "server", "-h", "0.0.0.0", "-p", "5000"]
+
+    # exposing the port that will be used by MLFlow and Jupyter Notebook
+    ports:
       - "5000:5000"
     
     # setting external volumes
