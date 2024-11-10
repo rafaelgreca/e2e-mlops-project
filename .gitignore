@@ -1,6 +1,6 @@
 ipynb_checkpoints/
-mlruns/
-mlartifacts/
+mlruns
+mlartifacts
 *.csv
 
 # Byte-compiled / optimized / DLL files

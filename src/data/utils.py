@@ -1,10 +1,11 @@
 import os
 import pathlib
 import joblib
-import numpy as np
 from typing import Union
 
 import boto3
+import numpy as np
+from loguru import logger
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 from ..config.aws import aws_credentials
@@ -24,6 +25,7 @@ def load_feature(
     Returns:
         Union[np.ndarray, StandardScaler, OneHotEncoder]: the feature's content.
     """
+    logger.info(f"Loading feature/encoder/scaler from file {path}.")
     return joblib.load(pathlib.PosixPath.joinpath(path, f"{feature_name}.pkl"))
 
 
@@ -40,7 +42,7 @@ def custom_combiner(feature, category) -> str:
     """
     return str(category)
 
-
+@logger.catch
 def download_dataset(
     name: str,
 ) -> None:
@@ -52,6 +54,7 @@ def download_dataset(
     kaggle_user = kaggle_credentials.KAGGLE_USERNAME
     kaggle_key = kaggle_credentials.KAGGLE_KEY
     path = '../data/'
+    logger.info(f"Downloading dataset {name} and saving into the folder {path}.")
 
     # Downloading data using the Kaggle API through the terminal
     os.system(f'export KAGGLE_USERNAME={kaggle_user}; export KAGGLE_KEY={kaggle_key};')

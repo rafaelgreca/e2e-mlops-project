@@ -1,12 +1,10 @@
 import mlflow
 import numpy as np
-import pathlib
+from loguru import logger
 from sklearn.metrics import f1_score
 
 from .config.model import model_settings
-from .data.processing import load_dataset, data_processing
-from .data.utils import custom_combiner
-from .config.settings import general_settings
+
 
 class Model:
     """The trained model's class.
@@ -29,6 +27,7 @@ class Model:
         self.model_version = model_version
         self.model = None
 
+    @logger.catch
     def load(self) -> None:
         """Loads the trained model.
 
@@ -36,10 +35,13 @@ class Model:
             NotImplementedError: raises NotImplementedError if the model's
                 flavor value is not 'xgboost'.
         """
+        logger.info(f"Loading the model {model_settings.MODEL_NAME} from run ID {model_settings.RUN_ID}.")
+
         if self.model_flavor == "xgboost":
             model_uri = f"runs:/{model_settings.RUN_ID}/{model_settings.MODEL_NAME}"
             self.model = mlflow.xgboost.load_model(model_uri)
         else:
+            logger.critical(f"Couldn't load the model using the flavor {model_settings.MODEL_FLAVOR}.")
             raise NotImplementedError()
 
     def predict(self, x: np.ndarray) -> np.ndarray:
@@ -51,7 +53,9 @@ class Model:
         Returns:
             np.ndarray: the predictions array.
         """
-        return np.argmax(self.model.predict(x), axis=1)
+        prediction = np.argmax(self.model.predict(x), axis=1)
+        logger.info(f"Prediction: {prediction}.")
+        return prediction
 
     def score(self, x: np.ndarray, y: np.ndarray) -> float:
         """Calculates the F1-Score of a trained model given a pair of features
@@ -67,21 +71,6 @@ class Model:
         prediction = self.predict(x).reshape(-1)
         _y = np.argmax(y, axis=1).reshape(-1)
 
-        return f1_score(y_true=_y, y_pred=prediction, average="weighted")
-
-# if __name__ == "__main__":
-#     dataset = load_dataset(
-#         path=pathlib.Path.joinpath(general_settings.DATA_PATH, general_settings.RAW_FILE_NAME)
-#     )
-#     X, y = data_processing(dataset)
-
-#     loaded_model = Model(
-#         model_name=model_settings.MODEL_NAME,
-#         model_flavor=model_settings.MODEL_FLAVOR,
-#         model_version=model_settings.VERSION,
-#     )
-#     loaded_model.load()
-
-
-#     print(loaded_model.predict(X))
-#     print(loaded_model.score(X, y))
+        score = f1_score(y_true=_y, y_pred=prediction, average="weighted")
+        logger.info(f"Achieved a weighted F1-Score of {score}.")
+        return score

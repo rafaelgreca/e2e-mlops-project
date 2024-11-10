@@ -1,11 +1,15 @@
-import pandas as pd
-import numpy as np
 import pathlib
 from typing import List, Dict, Tuple
+
+import numpy as np
+import pandas as pd
+from loguru import logger
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
+
 from .utils import custom_combiner, load_feature
 from ..config.settings import general_settings
 from ..config.model import model_settings
+
 
 def data_processing(dataframe: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     """Applies the data processing pipeline.
@@ -17,18 +21,26 @@ def data_processing(dataframe: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
         Tuple[np.ndarray, np.ndarray]: the features and labels array, respectively.
     """
     # First step) removing duplicates, changing the height unit, removing outliers
+    logger.info("Removing duplicates from the dataset.")
     dataframe = _remove_duplicates(dataframe)
+
+    logger.info("Changing the height units to centimeters.")
     dataframe = _change_height_units(dataframe)
+
+    logger.info("Removing outliers from the dataset.")
     dataframe = _remove_outliers(dataframe)
 
     # Feature engineering step)
     # Creating the BMI feature
+    logger.info("Creating a new column for the BMI values from the data samples.")
     dataframe = _create_bmi_feature(dataframe)
 
     # Creating the BMR feature
+    logger.info("Creating a new column for the BMR values from the data samples.")
     dataframe = _create_bmr_feature(dataframe)
 
     # Creating the IS feature
+    logger.info("Creating a new column for the IS values from the data samples.")
     dataframe = _create_is_feature(dataframe)
 
     # Feature transformation step)
@@ -41,9 +53,11 @@ def data_processing(dataframe: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
         "NCP",
         "CH2O",
     ]
+    logger.info(f"Dropping the columns {columns_to_drop}.")
     dataframe = _drop_features(dataframe=dataframe, features=columns_to_drop)
 
     # Transforming the AGE and IS columns into a categorical columns
+    logger.info("Categorizing the numerical columns ('Age' and 'IS').")
     dataframe = _categorize_numerical_columns(dataframe)
 
     # Transforming (Log Transformation) numerical columns
@@ -69,12 +83,15 @@ def data_processing(dataframe: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
 
     # Selecting only the features that are important for the model
     dataframe = dataframe[model_settings.FEATURES + [general_settings.TARGET_COLUMN]]
+    logger.info(f"Filtering the features columns, keeping only {model_settings.FEATURES} columns.")
 
     # Splitting the data into X (features) and y (label)
+    logger.info("Splitting the dataset into X and y arrays.")
     X = dataframe.drop(columns=[general_settings.TARGET_COLUMN]).values
     y = dataframe[general_settings.TARGET_COLUMN].values
 
     # Encoding the labels array
+    logger.info(f"Encoding the target column ({general_settings.TARGET_COLUMN}).")
     label_encoder = load_feature(
         path=general_settings.ARTIFACTS_PATH,
         feature_name='label_ohe'
@@ -252,6 +269,7 @@ def _transform_numerical_columns(
         pd.DataFrame: the dataframe with all numerical columns transformed.
     """
     numerical_columns = dataframe.select_dtypes(exclude="object").columns.tolist()
+    logger.info(f"Applying Log Transformation to the {numerical_columns} columns.")
 
     for nc in numerical_columns:
         dataframe[nc] = np.log1p(dataframe[nc].values + epsilon)
@@ -273,6 +291,7 @@ def _scale_numerical_columns(
         pd.DataFrame: the dataframe with all numerical columns encoded.
     """
     numerical_columns = dataframe.select_dtypes(exclude="object").columns.tolist()
+    logger.info(f"Scaling the {numerical_columns} columns.")
 
     for nc in numerical_columns:
         dataframe[nc] = sc[nc].transform(dataframe[nc].values.reshape(-1, 1))
@@ -297,6 +316,8 @@ def _encode_categorical_columns(
     """
     categorical_columns = dataframe.select_dtypes(include="object").columns.tolist()
     categorical_columns.remove(target_column)
+    logger.info(f"Encoding the {categorical_columns} columns.")
+
     new_dataframe = pd.DataFrame()
 
     for cc in categorical_columns:
@@ -334,4 +355,5 @@ def load_dataset(path: pathlib.Path) -> pd.DataFrame:
     Returns:
         pd.DataFrame: the dataframe.
     """
+    logger.info(f"Loading dataset from path {path}.")
     return pd.read_csv(path, sep=",")
