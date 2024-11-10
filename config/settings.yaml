@@ -1,0 +1,14 @@
+# MODEL SETTINGS
+FEATURES: ['Gender_Male', 'Age_q2', 'Age_q4', 'CAEC_Frequently', 'CAEC_Sometimes', 'CAEC_no', 'SMOKE_yes', 'SCC_yes', 'CALC_infrequent_sklearn', 'MTRANS_Public_Transportation', 'MTRANS_Walking', 'MTRANS_infrequent_sklearn', 'IS_1', 'FCVC', 'FAF', 'TUE', 'BMI', 'BMR']
+MODEL_NAME: 'xgboost'
+MODEL_FLAVOR: 'xgboost'
+RUN_ID: 'ff943ce028b1479795153a8f13106894'
+EXPERIMENT_ID: '755921522963084808'
+VERSION: '1.0'
+
+# GENERAL SETTINGS
+DATA_PATH: '/media/greca/HD/GitHub/e2e-mlops-project/data/'
+RAW_FILE_NAME: 'Original_ObesityDataSet.csv'
+ARTIFACTS_PATH: '/media/greca/HD/GitHub/e2e-mlops-project/models/artifacts/'
+FEATURES_PATH: '/media/greca/HD/GitHub/e2e-mlops-project/models/features/'
+TARGET_COLUMN: 'NObeyesdad'
