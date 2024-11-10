@@ -27,23 +27,16 @@ export KAGGLE_KEY="$CONFIG_KAGGLE_KEY"
 export AWS_ACCESS_KEY_ID="$CONFIG_AWS_ACCESS_KEY"
 export AWS_SECRET_ACCESS_KEY="$CONFIG_AWS_SECRET_KEY"
 
-# creating a folder within the temporary folder where the dataset will be temporarily saved
-mkdir /tmp/e2e-mlops-project/ && cd /tmp/e2e-mlops-project/
-
 # downloading the dataset using the kaggle's api
-kaggle datasets download -d aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster
-
-# unzipping the compressed file
-unzip obesity-or-cvd-risk-classifyregressorcluster.zip
-
-# deleting the zip file
-rm -f obesity-or-cvd-risk-classifyregressorcluster.zip
+kaggle datasets download -d aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster --unzip
 
 # renaming the csv file
 mv ObesityDataSet.csv Original_ObesityDataSet.csv
 
-# copying the csv file to the s3 bucket
-aws s3 cp Original_ObesityDataSet.csv s3://$"$CONFIG_S3"
+if [[ "$CONFIG_S3" != "YOUR_S3_BUCKET_URL" ]]; then
+    # copying the csv file to the s3 bucket
+    aws s3 cp Original_ObesityDataSet.csv s3://$"$CONFIG_S3"
 
-# deleting the create folder
-cd ~ && rm -rf /tmp/e2e-mlops-project
+    # deleting the create folder
+    rm Original_ObesityDataSet.csv
+    
