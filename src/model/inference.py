@@ -1,12 +1,17 @@
 import mlflow
 import numpy as np
 from loguru import logger
-from sklearn.metrics import f1_score
 
-from .config.model import model_settings
+from ..config.model import model_settings
+from ..config.settings import general_settings
+from ..data.utils import load_feature
 
+label_encoder = load_feature(
+    path=general_settings.ARTIFACTS_PATH,
+    feature_name='label_ohe'
+)
 
-class Model:
+class ModelServe:
     """The trained model's class.
     """
     def __init__(
@@ -53,24 +58,7 @@ class Model:
         Returns:
             np.ndarray: the predictions array.
         """
-        prediction = np.argmax(self.model.predict(x), axis=1)
+        prediction = self.model.predict(x)
+        prediction = label_encoder.inverse_transform(prediction)
         logger.info(f"Prediction: {prediction}.")
         return prediction
-
-    def score(self, x: np.ndarray, y: np.ndarray) -> float:
-        """Calculates the F1-Score of a trained model given a pair of features
-        and labels arrays.
-
-        Args:
-            x (np.ndarray): the features array.
-            y (np.ndarray): the targets array.
-
-        Returns:
-            float: the F1 Score value.
-        """
-        prediction = self.predict(x).reshape(-1)
-        _y = np.argmax(y, axis=1).reshape(-1)
-
-        score = f1_score(y_true=_y, y_pred=prediction, average="weighted")
-        logger.info(f"Achieved a weighted F1-Score of {score}.")
-        return score

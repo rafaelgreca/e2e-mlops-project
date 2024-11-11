@@ -1,34 +1,28 @@
 import pathlib
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 import numpy as np
 import pandas as pd
 from loguru import logger
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
-from .utils import custom_combiner, load_feature
+from .utils import load_feature
 from ..config.settings import general_settings
 from ..config.model import model_settings
 
 
-def data_processing(dataframe: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
     """Applies the data processing pipeline.
 
     Args:
         dataframe (pd.DataFrame): the dataframe.
 
     Returns:
-        Tuple[np.ndarray, np.ndarray]: the features and labels array, respectively.
+        np.ndarray: the features array.
     """
-    # First step) removing duplicates, changing the height unit, removing outliers
-    logger.info("Removing duplicates from the dataset.")
-    dataframe = _remove_duplicates(dataframe)
-
+    # First step) changing the height unit
     logger.info("Changing the height units to centimeters.")
     dataframe = _change_height_units(dataframe)
-
-    logger.info("Removing outliers from the dataset.")
-    dataframe = _remove_outliers(dataframe)
 
     # Feature engineering step)
     # Creating the BMI feature
@@ -48,33 +42,38 @@ def data_processing(dataframe: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     columns_to_drop = [
         "Height",
         "Weight",
-        "family_history_with_overweight",
-        "FAVC",
-        "NCP",
-        "CH2O",
     ]
     logger.info(f"Dropping the columns {columns_to_drop}.")
     dataframe = _drop_features(dataframe=dataframe, features=columns_to_drop)
 
     # Transforming the AGE and IS columns into a categorical columns
     logger.info("Categorizing the numerical columns ('Age' and 'IS').")
-    dataframe = _categorize_numerical_columns(dataframe)
+    age_bins = load_feature(
+        path=general_settings.ARTIFACTS_PATH,
+        feature_name='qcut_bins'
+    )
+    dataframe = _categorize_numerical_columns(dataframe, age_bins)
 
     # Transforming (Log Transformation) numerical columns
     dataframe = _transform_numerical_columns(dataframe)
 
-    # Scaling numerical columns
-    sc = load_feature(
-        path=general_settings.ARTIFACTS_PATH,
-        feature_name='features_sc'
-    )
-    dataframe = _scale_numerical_columns(dataframe=dataframe, sc=sc)
-
-    # Encoding categorical columns
+    # Loading the encoders and scalers
+    logger.info(f"Loading encoders 'features_ohe' from path {general_settings.ARTIFACTS_PATH}.")
     encoders = load_feature(
         path=general_settings.ARTIFACTS_PATH,
         feature_name='features_ohe'
     )
+
+    logger.info(f"Loading scalers 'features_sc' from path {general_settings.ARTIFACTS_PATH}.")
+    sc = load_feature(
+        path=general_settings.ARTIFACTS_PATH,
+        feature_name='features_sc'
+    )
+
+    # Scaling numerical columns
+    dataframe = _scale_numerical_columns(dataframe=dataframe, sc=sc)
+
+    # Encoding categorical columns
     dataframe = _encode_categorical_columns(
         dataframe=dataframe,
         encoders=encoders,
@@ -82,23 +81,11 @@ def data_processing(dataframe: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     )
 
     # Selecting only the features that are important for the model
-    dataframe = dataframe[model_settings.FEATURES + [general_settings.TARGET_COLUMN]]
+    dataframe = dataframe[model_settings.FEATURES]
     logger.info(f"Filtering the features columns, keeping only {model_settings.FEATURES} columns.")
 
-    # Splitting the data into X (features) and y (label)
-    logger.info("Splitting the dataset into X and y arrays.")
-    X = dataframe.drop(columns=[general_settings.TARGET_COLUMN]).values
-    y = dataframe[general_settings.TARGET_COLUMN].values
-
-    # Encoding the labels array
-    logger.info(f"Encoding the target column ({general_settings.TARGET_COLUMN}).")
-    label_encoder = load_feature(
-        path=general_settings.ARTIFACTS_PATH,
-        feature_name='label_ohe'
-    )
-    y = _encode_labels_array(array=y, encoder=label_encoder)
-
-    return X, y
+    X = dataframe.values
+    return X
 
 def _drop_features(
     dataframe: pd.DataFrame,
@@ -239,7 +226,8 @@ def _create_bmr_feature(
     return dataframe
 
 def _categorize_numerical_columns(
-    dataframe: pd.DataFrame
+    dataframe: pd.DataFrame,
+    bins: pd.DataFrame,
 ) -> pd.DataFrame:
     """Categorizes the numerical columns (e.g., transforming int to object/class).
 
@@ -249,7 +237,7 @@ def _categorize_numerical_columns(
     Returns:
         pd.DataFrame: the dataframe with all numerical columns categorized.
     """
-    dataframe["Age"] = pd.qcut(x=dataframe["Age"], q=4, labels=["q1", "q2", "q3", "q4"])
+    dataframe["Age"] = pd.cut(x=dataframe["Age"], bins=bins, labels=["q1", "q2", "q3", "q4"])
     dataframe["Age"] = dataframe["Age"].astype("object")
     dataframe["IS"] = dataframe["IS"].astype("object")
     return dataframe
@@ -315,7 +303,7 @@ def _encode_categorical_columns(
         pd.DataFrame: the dataframe with all categorical columns encoded.
     """
     categorical_columns = dataframe.select_dtypes(include="object").columns.tolist()
-    categorical_columns.remove(target_column)
+    # categorical_columns.remove(target_column)
     logger.info(f"Encoding the {categorical_columns} columns.")
 
     new_dataframe = pd.DataFrame()

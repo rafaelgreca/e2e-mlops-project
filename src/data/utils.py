@@ -11,7 +11,6 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from ..config.aws import aws_credentials
 from ..config.kaggle import kaggle_credentials
 
-
 def load_feature(
     path: pathlib.Path,
     feature_name: str,
@@ -27,20 +26,6 @@ def load_feature(
     """
     logger.info(f"Loading feature/encoder/scaler from file {path}.")
     return joblib.load(pathlib.PosixPath.joinpath(path, f"{feature_name}.pkl"))
-
-
-def custom_combiner(feature, category) -> str:
-    """Auxiliary function that is used to rename the output's columns from
-    the OneHotEncoder instance.
-
-    Args:
-        feature (_type_): the feature's name (ignored).
-        category (_type_): the category's name.
-
-    Returns:
-        str: the current category from that given feature.
-    """
-    return str(category)
 
 @logger.catch
 def download_dataset(
