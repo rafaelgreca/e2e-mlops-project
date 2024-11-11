@@ -1,13 +1,10 @@
 import pandas as pd
 from fastapi import FastAPI
 
-from .data.processing import load_dataset, data_processing_inference
-from .config.settings import general_settings
+from .data.processing import data_processing_inference
 from .config.model import model_settings
 from .model.inference import ModelServe
 from .schema.person import Person
-from .schema.prediction import Prediction
-
 
 app = FastAPI()
 
@@ -22,14 +19,14 @@ def check_versions():
     }
 
 @app.get("/predict")
-async def prediction(person: Person, response_model=Prediction):
+async def prediction(person: Person):
     loaded_model = ModelServe(
         model_name=model_settings.MODEL_NAME,
         model_flavor=model_settings.MODEL_FLAVOR,
         model_version=model_settings.VERSION,
     )
     loaded_model.load()
-    
+
     data = pd.DataFrame.from_dict([person.model_dump()])
     X = data_processing_inference(data)
 
