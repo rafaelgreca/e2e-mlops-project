@@ -20,6 +20,7 @@ class GeneralSettings(BaseModel):
     TARGET_COLUMN: str
     LOG_LEVEL: str
     LOG_PATH: DirectoryPath
+    RESEARCH_ENVIRONMENT_PATH: DirectoryPath
 
 general_settings = GeneralSettings(
     **read_yaml_credentials_file(
