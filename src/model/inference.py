@@ -49,16 +49,21 @@ class ModelServe:
             logger.critical(f"Couldn't load the model using the flavor {model_settings.MODEL_FLAVOR}.")
             raise NotImplementedError()
 
-    def predict(self, x: np.ndarray) -> np.ndarray:
+    def predict(self, x: np.ndarray, transform_to_str: bool = True) -> np.ndarray:
         """Uses the trained model to make a prediction on a given feature array.
 
         Args:
             x (np.ndarray): the features array.
+            transform_to_str (bool): whether to transform the prediction integer to
+                string or not. Defaults to True.
 
         Returns:
             np.ndarray: the predictions array.
         """
         prediction = self.model.predict(x)
-        prediction = label_encoder.inverse_transform(prediction)
+
+        if transform_to_str:
+            prediction = label_encoder.inverse_transform(prediction)
+
         logger.info(f"Prediction: {prediction}.")
         return prediction
