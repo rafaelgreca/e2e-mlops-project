@@ -21,4 +21,4 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest
       run: |
-        pytest --cov-report html:./results/cov_html tests/
+        pytest --cov-report html:./results/cov_html --cov=src/ tests/
