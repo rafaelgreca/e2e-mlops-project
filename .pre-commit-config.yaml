@@ -6,7 +6,6 @@ repos:
       -   id: check-yaml
       -   id: end-of-file-fixer
       -   id: trailing-whitespace
-      -   id: check-added-large-files
       -   id: debug-statements
           language_version: python3
 

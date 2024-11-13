@@ -47,7 +47,6 @@ def test_model_inference_pipeline() -> None:
     assert predictions.shape[0] == features.shape[0]
     assert isinstance(predictions.dtype, type(np.dtype("float64")))
 
-    # FIXME: fix this
     # predictions = loaded_model.predict(x, transform_to_str=True)
 
     # assert isinstance(predictions, List)

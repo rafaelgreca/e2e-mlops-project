@@ -89,7 +89,6 @@ def test_prediction() -> None:
 #     Unit case to test the model performance on training and validation sets
 #     (making sure that are the same values as mentioned in MLflow's UI).
 #     """
-#     # FIXME: fix this
 #     indexes = [FEATURES_NAME.index(i) for i in model_settings.FEATURES]
 
 #     loaded_model = ModelServe(

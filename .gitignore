@@ -2,7 +2,7 @@ logs/
 ipynb_checkpoints/
 mlruns
 mlartifacts
-*.csv
+# *.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
