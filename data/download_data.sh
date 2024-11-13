@@ -19,7 +19,7 @@ function parse_yaml {
 }
 
 # setting important variables
-eval $(parse_yaml ../credentials.yaml "CONFIG_")
+eval $(parse_yaml ../config/credentials.yaml "CONFIG_")
 
 # defining important variables
 export KAGGLE_USERNAME="$CONFIG_KAGGLE_USERNAME"

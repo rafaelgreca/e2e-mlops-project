@@ -62,8 +62,12 @@ class ModelServe:
         """
         prediction = self.model.predict(x)
 
+        print(prediction.shape)
+
         if transform_to_str:
             prediction = label_encoder.inverse_transform(prediction)
+        else:
+            prediction = np.max(prediction, axis=1)
 
         logger.info(f"Prediction: {prediction}.")
         return prediction

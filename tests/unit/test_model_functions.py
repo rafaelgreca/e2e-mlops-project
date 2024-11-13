@@ -104,7 +104,7 @@ def test_model_performance() -> None:
     )
     y_train = np.max(y_train, axis=1)
 
-    train_predictions = np.max(loaded_model.predict(X_train, transform_to_str=False), axis=1)
+    train_predictions = loaded_model.predict(X_train, transform_to_str=False)
     train_score = f1_score(y_true=y_train, y_pred=train_predictions, average="weighted")
 
     X_valid = load_feature(
@@ -117,7 +117,7 @@ def test_model_performance() -> None:
     )
     y_valid = np.max(y_valid, axis=1)
 
-    valid_predictions = np.max(loaded_model.predict(X_valid, transform_to_str=False), axis=1)
+    valid_predictions = loaded_model.predict(X_valid, transform_to_str=False)
     valid_score = f1_score(y_true=y_valid, y_pred=valid_predictions, average="weighted")
 
     assert train_score == train_score
