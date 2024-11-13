@@ -30,10 +30,10 @@ from src.data.utils import load_feature, download_dataset
 # loading the raw dataset that was used to train the model
 dataset = load_dataset(
     path=pathlib.Path.joinpath(
-        general_settings.DATA_PATH,
-        general_settings.RAW_FILE_NAME
+        general_settings.DATA_PATH, general_settings.RAW_FILE_NAME
     )
 )
+
 
 def test_change_height_units() -> None:
     """
@@ -52,14 +52,15 @@ def test_change_height_units() -> None:
 
     assert max_height < 300 and min_height > 100
 
+
 @pytest.mark.parametrize(
     "features",
     [
         ["Height", "Weight", "Gender", "Age"],
         ["family_history_with_overweight", "FAVC", "FCVC", "NCP"],
         ["CAEC", "SMOKE", "CH2O", "SCC"],
-        ["FAF", "TUE", "CALC", "MTRANS", "NObeyesdad"]
-    ]
+        ["FAF", "TUE", "CALC", "MTRANS", "NObeyesdad"],
+    ],
 )
 def test_drop_features(features: List[str]) -> None:
     """
@@ -74,6 +75,7 @@ def test_drop_features(features: List[str]) -> None:
 
     assert all(f not in _dataset.columns.tolist() for f in features)
 
+
 def test_remove_duplicates():
     """
     Unit case to test the function that drops duplicated rows from the dataset.
@@ -85,6 +87,7 @@ def test_remove_duplicates():
     shape_after = _dataset.shape[0]
 
     assert shape_after < shape_before
+
 
 def test_remove_outliers():
     """
@@ -98,6 +101,7 @@ def test_remove_outliers():
     shape_after = _dataset.shape[0]
 
     assert shape_after < shape_before
+
 
 def test_create_is_feature():
     """
@@ -114,6 +118,7 @@ def test_create_is_feature():
     assert isinstance(_dataset["IS"].dtype, type(np.dtype("int64")))
     assert max(_dataset["IS"].values.tolist()) <= 1
 
+
 def test_create_bmi_feature():
     """
     Unit case to test the function that creates the Body Mass Index (BMI) feature.
@@ -127,6 +132,7 @@ def test_create_bmi_feature():
     assert "BMI" in _dataset.columns.tolist()
     assert ptypes.is_numeric_dtype(_dataset["BMI"])
     assert isinstance(_dataset["BMI"].dtype, type(np.dtype("float64")))
+
 
 def test_create_bmr_feature():
     """
@@ -142,14 +148,14 @@ def test_create_bmr_feature():
     assert ptypes.is_numeric_dtype(_dataset["BMR"])
     assert isinstance(_dataset["BMR"].dtype, type(np.dtype("float64")))
 
+
 def test_categorize_numerical_columns():
     """
     Unit case to test the function that categorizes (transform numeric to object)
     the numerical columns.
     """
     age_bins = load_feature(
-        path=general_settings.ARTIFACTS_PATH,
-        feature_name='qcut_bins'
+        path=general_settings.ARTIFACTS_PATH, feature_name="qcut_bins"
     )
     _dataset = dataset.copy()
     _dataset = _create_is_feature(dataframe=_dataset)
@@ -165,20 +171,22 @@ def test_categorize_numerical_columns():
     assert isinstance(_dataset["Age"].dtype, type(np.dtype("object")))
     assert isinstance(_dataset["IS"].dtype, type(np.dtype("object")))
 
+
 def test_scale_numerical_columns():
     """
     Unit case to test the function that scales the numerical features.
     """
     _dataset = dataset.copy()
-    _dataset = _dataset.drop(columns=["Age"]) # this column will be transformed to object
-    _dataset = _dataset.drop(columns=["Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE"]) # these columns are not being used
+    _dataset = _dataset.drop(
+        columns=["Age"]
+    )  # this column will be transformed to object
+    _dataset = _dataset.drop(
+        columns=["Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE"]
+    )  # these columns are not being used
 
     numerical_columns = _dataset.select_dtypes(exclude="object").columns.tolist()
 
-    sc = load_feature(
-        path=general_settings.ARTIFACTS_PATH,
-        feature_name="features_sc"
-    )
+    sc = load_feature(path=general_settings.ARTIFACTS_PATH, feature_name="features_sc")
     _dataset2 = _scale_numerical_columns(dataframe=_dataset, sc=sc)
 
     for nc in numerical_columns:
@@ -189,14 +197,19 @@ def test_scale_numerical_columns():
         assert _dataset[nc].std(axis=0) > _dataset2[nc].std(axis=0)
         assert isinstance(_dataset2[nc].dtype, type(np.dtype("float64")))
 
+
 def test_transform_numerical_columns():
     """
     Unit case to test the function that applies log transformatio to the
     numerical columns.
     """
     _dataset = dataset.copy()
-    _dataset = _dataset.drop(columns=["Age"]) # this column will be transformed to object
-    _dataset = _dataset.drop(columns=["Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE"]) # these columns are not being used
+    _dataset = _dataset.drop(
+        columns=["Age"]
+    )  # this column will be transformed to object
+    _dataset = _dataset.drop(
+        columns=["Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE"]
+    )  # these columns are not being used
     numerical_columns = _dataset.select_dtypes(exclude="object").columns.tolist()
 
     _dataset2 = _transform_numerical_columns(dataframe=_dataset)
@@ -208,25 +221,28 @@ def test_transform_numerical_columns():
         assert _dataset[nc].max(axis=0) != _dataset2[nc].max(axis=0)
         assert _dataset[nc].min(axis=0) != _dataset2[nc].min(axis=0)
 
+
 def test_encode_categorical_columns():
     """
-    Unit case to test the function that encodes (applies the one hot 
+    Unit case to test the function that encodes (applies the one hot
     encode technique) the categorical features.
     """
     _dataset = dataset.copy()
-    _dataset = _dataset.drop(columns=["NObeyesdad"]) # removing the target column
+    _dataset = _dataset.drop(columns=["NObeyesdad"])  # removing the target column
     categorical_columns = _dataset.select_dtypes(include="object").columns.tolist()
 
     encoders = load_feature(
-        path=general_settings.ARTIFACTS_PATH,
-        feature_name="features_ohe"
+        path=general_settings.ARTIFACTS_PATH, feature_name="features_ohe"
     )
-    _dataset2 = _encode_categorical_columns(dataframe=_dataset, encoders=encoders, target_column="NObeyesdad")
+    _dataset2 = _encode_categorical_columns(
+        dataframe=_dataset, encoders=encoders, target_column="NObeyesdad"
+    )
 
     for cc in categorical_columns:
         assert cc in _dataset.columns.tolist() and cc not in _dataset2.columns.tolist()
-        assert any(re.findall(f'{cc}_', c) for c in _dataset2.columns.tolist())
+        assert any(re.findall(f"{cc}_", c) for c in _dataset2.columns.tolist())
         assert _dataset.shape[1] != _dataset2.shape[1]
+
 
 def test_load_dataset():
     """
@@ -257,20 +273,19 @@ def test_load_dataset():
     assert dataset.shape[1] == len(columns)
     assert dataset.shape[0] == 2111
 
+
 def test_download_dataset():
     """
     Unit case to test the function that downloads the original, raw dataset.
     """
     if pathlib.Path.exists(
         pathlib.Path.joinpath(
-            general_settings.DATA_PATH,
-            general_settings.RAW_FILE_NAME
+            general_settings.DATA_PATH, general_settings.RAW_FILE_NAME
         )
     ):
         os.remove(
             pathlib.Path.joinpath(
-                general_settings.DATA_PATH,
-                general_settings.RAW_FILE_NAME
+                general_settings.DATA_PATH, general_settings.RAW_FILE_NAME
             )
         )
 
@@ -283,10 +298,10 @@ def test_download_dataset():
 
     assert pathlib.Path.exists(
         pathlib.Path.joinpath(
-            general_settings.DATA_PATH,
-            general_settings.RAW_FILE_NAME
+            general_settings.DATA_PATH, general_settings.RAW_FILE_NAME
         )
     )
+
 
 # def test_send_dataset_aws():
 #     """

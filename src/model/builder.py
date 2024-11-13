@@ -11,8 +11,8 @@ from ..data.processing import data_processing
 
 
 class ModelBuilder:
-    """The trained model's class.
-    """
+    """The trained model's class."""
+
     def __init__(
         self,
         model_name: str,
@@ -38,7 +38,9 @@ class ModelBuilder:
         # Pre-processing and cleaning the data
         X, y = data_processing(dataframe)
 
-        logger.info("Splitting the data into training and validation using 90/10 split.")
+        logger.info(
+            "Splitting the data into training and validation using 90/10 split."
+        )
 
         # Splitting the data into training and validation
         X_train, X_valid, y_train, y_valid = train_test_split(

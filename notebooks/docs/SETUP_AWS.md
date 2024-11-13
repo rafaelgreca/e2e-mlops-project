@@ -196,7 +196,7 @@ aws ec2 authorize-security-group-ingress \
     --group-id "sg-0613261580cd87115" \
     --protocol tcp \
     --port 5000 \
-    --cidr "0.0.0.0/0" 
+    --cidr "0.0.0.0/0"
 ```
 
 The output should look like this:
@@ -224,7 +224,7 @@ aws ec2 authorize-security-group-ingress \
     --group-id "sg-0613261580cd87115" \
     --protocol tcp \
     --port 22 \
-    --cidr "18.206.107.24/29" 
+    --cidr "18.206.107.24/29"
 ```
 
 The output should look like this:

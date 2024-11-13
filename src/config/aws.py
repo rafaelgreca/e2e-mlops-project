@@ -11,11 +11,13 @@ class AWSCredentials(BaseModel):
     Args:
         BaseModel (pydantic.BaseModel): Pydantic base model instance.
     """
+
     EC2: str
     S3: str
     POSTGRESQL: str
     AWS_ACCESS_KEY: str
     AWS_SECRET_KEY: str
+
 
 aws_credentials = AWSCredentials(
     **read_yaml_credentials_file(

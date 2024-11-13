@@ -49,8 +49,7 @@ def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
     # Transforming the AGE and IS columns into a categorical columns
     logger.info("Categorizing the numerical columns ('Age' and 'IS').")
     age_bins = load_feature(
-        path=general_settings.ARTIFACTS_PATH,
-        feature_name='qcut_bins'
+        path=general_settings.ARTIFACTS_PATH, feature_name="qcut_bins"
     )
     dataframe = _categorize_numerical_columns(dataframe, age_bins)
 
@@ -58,17 +57,17 @@ def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
     dataframe = _transform_numerical_columns(dataframe)
 
     # Loading the encoders and scalers
-    logger.info(f"Loading encoders 'features_ohe' from path {general_settings.ARTIFACTS_PATH}.")
+    logger.info(
+        f"Loading encoders 'features_ohe' from path {general_settings.ARTIFACTS_PATH}."
+    )
     encoders = load_feature(
-        path=general_settings.ARTIFACTS_PATH,
-        feature_name='features_ohe'
+        path=general_settings.ARTIFACTS_PATH, feature_name="features_ohe"
     )
 
-    logger.info(f"Loading scalers 'features_sc' from path {general_settings.ARTIFACTS_PATH}.")
-    sc = load_feature(
-        path=general_settings.ARTIFACTS_PATH,
-        feature_name='features_sc'
+    logger.info(
+        f"Loading scalers 'features_sc' from path {general_settings.ARTIFACTS_PATH}."
     )
+    sc = load_feature(path=general_settings.ARTIFACTS_PATH, feature_name="features_sc")
 
     # Scaling numerical columns
     dataframe = _scale_numerical_columns(dataframe=dataframe, sc=sc)
@@ -77,20 +76,20 @@ def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
     dataframe = _encode_categorical_columns(
         dataframe=dataframe,
         encoders=encoders,
-        target_column=general_settings.TARGET_COLUMN
+        target_column=general_settings.TARGET_COLUMN,
     )
 
     # Selecting only the features that are important for the model
     dataframe = dataframe[model_settings.FEATURES]
-    logger.info(f"Filtering the features columns, keeping only {model_settings.FEATURES} columns.")
+    logger.info(
+        f"Filtering the features columns, keeping only {model_settings.FEATURES} columns."
+    )
 
     X = dataframe.values
     return X
 
-def _drop_features(
-    dataframe: pd.DataFrame,
-    features: List
-) -> pd.DataFrame:
+
+def _drop_features(dataframe: pd.DataFrame, features: List) -> pd.DataFrame:
     """Excludes features from the given dataframe.
 
     Args:
@@ -101,9 +100,8 @@ def _drop_features(
     """
     return dataframe.drop(columns=features).reset_index(drop=True)
 
-def _remove_duplicates(
-    dataframe: pd.DataFrame
-) -> pd.DataFrame:
+
+def _remove_duplicates(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Removes duplicates.
 
     Args:
@@ -114,9 +112,8 @@ def _remove_duplicates(
     """
     return dataframe.drop_duplicates(keep="first").reset_index(drop=True)
 
-def _change_height_units(
-    dataframe: pd.DataFrame
-) -> pd.DataFrame:
+
+def _change_height_units(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Changes the Height unit to centimeters, so will be easier to calculate
     other features from it.
 
@@ -129,9 +126,8 @@ def _change_height_units(
     dataframe["Height"] *= 100
     return dataframe
 
-def _remove_outliers(
-    dataframe: pd.DataFrame
-) -> pd.DataFrame:
+
+def _remove_outliers(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Removes outliers based on the age.
 
     Args:
@@ -149,16 +145,15 @@ def _remove_outliers(
     # Removing the data samples that exceeds the upper or lower limits
     dataframe = dataframe[
         ~(
-            (dataframe["Age"] >= (q3 + threshold * iqr)) |
-            (dataframe["Age"] <= (q1 - threshold * iqr))
+            (dataframe["Age"] >= (q3 + threshold * iqr))
+            | (dataframe["Age"] <= (q1 - threshold * iqr))
         )
     ]
 
     return dataframe
 
-def _create_is_feature(
-    dataframe: pd.DataFrame
-) -> pd.DataFrame:
+
+def _create_is_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Calculates the Is Sedentary? (IS) feature.
 
     Args:
@@ -172,9 +167,8 @@ def _create_is_feature(
     dataframe["IS"] = dataframe["IS"].astype(int)
     return dataframe
 
-def _create_bmi_feature(
-    dataframe: pd.DataFrame
-) -> pd.DataFrame:
+
+def _create_bmi_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Calculates the Body Mass Index (BMI) feature.
 
     Args:
@@ -187,9 +181,8 @@ def _create_bmi_feature(
     dataframe["BMI"] = dataframe["Weight"] / (dataframe["Height"] ** 2)
     return dataframe
 
-def _create_bmr_feature(
-    dataframe: pd.DataFrame
-) -> pd.DataFrame:
+
+def _create_bmr_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Calculates the Basal Metabolic Rate (BMR) feature.
 
     Args:
@@ -199,12 +192,8 @@ def _create_bmr_feature(
         pd.DataFrame: the dataframe with a new column corresponding to the
             value of BMR for each data.
     """
-    def _calculate_bmr(
-        age: int,
-        gender: str,
-        height: float,
-        weight: float
-    ) -> float:
+
+    def _calculate_bmr(age: int, gender: str, height: float, weight: float) -> float:
         """Auxiliary function used to calculate the BMR value.
 
         Args:
@@ -221,9 +210,10 @@ def _create_bmr_feature(
 
     dataframe["BMR"] = dataframe.apply(
         lambda x: _calculate_bmr(x["Age"], x["Gender"], x["Height"], x["Weight"]),
-        axis=1
+        axis=1,
     )
     return dataframe
+
 
 def _categorize_numerical_columns(
     dataframe: pd.DataFrame,
@@ -237,14 +227,16 @@ def _categorize_numerical_columns(
     Returns:
         pd.DataFrame: the dataframe with all numerical columns categorized.
     """
-    dataframe["Age"] = pd.cut(x=dataframe["Age"], bins=bins, labels=["q1", "q2", "q3", "q4"])
+    dataframe["Age"] = pd.cut(
+        x=dataframe["Age"], bins=bins, labels=["q1", "q2", "q3", "q4"]
+    )
     dataframe["Age"] = dataframe["Age"].astype("object")
     dataframe["IS"] = dataframe["IS"].astype("object")
     return dataframe
 
+
 def _transform_numerical_columns(
-    dataframe: pd.DataFrame,
-    epsilon: float = 1e-10
+    dataframe: pd.DataFrame, epsilon: float = 1e-10
 ) -> pd.DataFrame:
     """Transforms the numerical columns using the Log Transformation technique.
 
@@ -263,6 +255,7 @@ def _transform_numerical_columns(
         dataframe[nc] = np.log1p(dataframe[nc].values + epsilon)
 
     return dataframe
+
 
 def _scale_numerical_columns(
     dataframe: pd.DataFrame,
@@ -285,6 +278,7 @@ def _scale_numerical_columns(
         dataframe[nc] = sc[nc].transform(dataframe[nc].values.reshape(-1, 1))
 
     return dataframe
+
 
 def _encode_categorical_columns(
     dataframe: pd.DataFrame,
@@ -316,8 +310,11 @@ def _encode_categorical_columns(
         train_categorical_features = train_categorical_features.add_prefix(cc + "_")
         new_dataframe = pd.concat([new_dataframe, train_categorical_features], axis=1)
 
-    new_dataframe = pd.concat([new_dataframe, dataframe.drop(columns=categorical_columns)], axis=1)
+    new_dataframe = pd.concat(
+        [new_dataframe, dataframe.drop(columns=categorical_columns)], axis=1
+    )
     return new_dataframe
+
 
 def _encode_labels_array(
     array: np.ndarray,
@@ -333,6 +330,7 @@ def _encode_labels_array(
         pd.DataFrame: the encoded array.
     """
     return encoder.transform(array.reshape(-1, 1))
+
 
 def load_dataset(path: pathlib.Path) -> pd.DataFrame:
     """Loads a dataset from a specific path.

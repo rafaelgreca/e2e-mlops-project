@@ -13,6 +13,7 @@ class GeneralSettings(BaseModel):
     Args:
         BaseModel (pydantic.BaseModel): Pydantic base model instance.
     """
+
     DATA_PATH: DirectoryPath
     RAW_FILE_NAME: str
     ARTIFACTS_PATH: DirectoryPath
@@ -21,6 +22,7 @@ class GeneralSettings(BaseModel):
     LOG_LEVEL: str
     LOG_PATH: DirectoryPath
     RESEARCH_ENVIRONMENT_PATH: DirectoryPath
+
 
 general_settings = GeneralSettings(
     **read_yaml_credentials_file(
@@ -38,5 +40,5 @@ logger.add(
     Path.joinpath(general_settings.LOG_PATH, "logs", "app.log"),
     rotation="1 day",
     retention="7 days",
-    compression="zip"
+    compression="zip",
 )

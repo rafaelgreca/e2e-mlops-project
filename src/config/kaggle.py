@@ -10,6 +10,7 @@ class KaggleCredentials(BaseModel):
     Args:
         BaseModel (pydantic.BaseModel): Pydantic base model instance.
     """
+
     KAGGLE_USERNAME: str
     KAGGLE_KEY: str
 

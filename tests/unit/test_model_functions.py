@@ -13,19 +13,18 @@ from src.data.processing import data_processing_inference, load_dataset
 
 # loading the label encoder
 label_encoder = load_feature(
-    path=general_settings.ARTIFACTS_PATH,
-    feature_name='label_ohe'
+    path=general_settings.ARTIFACTS_PATH, feature_name="label_ohe"
 )
 
 # loading the processed dataset that will be used to get
 # the index of the used columns
 dataset = load_dataset(
     path=pathlib.Path.joinpath(
-        general_settings.DATA_PATH,
-        "Preprocessed_ObesityDataSet.csv"
+        general_settings.DATA_PATH, "Preprocessed_ObesityDataSet.csv"
     )
 )
 FEATURES_NAME = dataset.columns.tolist()
+
 
 def test_load_model() -> None:
     """
@@ -44,6 +43,7 @@ def test_load_model() -> None:
         assert isinstance(loaded_model.model, XGBClassifier)
 
     assert isinstance(loaded_model, ModelServe)
+
 
 def test_prediction() -> None:
     """
@@ -68,7 +68,7 @@ def test_prediction() -> None:
         "SCC": "no",
         "SMOKE": "False",
         "TUE": 1,
-        "Weight": 64
+        "Weight": 64,
     }
     correct_prediction = "Normal_Weight"
 
@@ -78,6 +78,7 @@ def test_prediction() -> None:
 
     assert isinstance(prediction, str)
     assert prediction == correct_prediction
+
 
 def test_model_performance() -> None:
     """
@@ -94,27 +95,19 @@ def test_model_performance() -> None:
     )
     loaded_model.load()
 
-    X_train = load_feature(
-        path=general_settings.FEATURES_PATH,
-        feature_name='X_train'
-    )[:, indexes]
-    y_train = load_feature(
-        path=general_settings.FEATURES_PATH,
-        feature_name='y_train'
-    )
+    X_train = load_feature(path=general_settings.FEATURES_PATH, feature_name="X_train")[
+        :, indexes
+    ]
+    y_train = load_feature(path=general_settings.FEATURES_PATH, feature_name="y_train")
     y_train = np.max(y_train, axis=1)
 
     train_predictions = loaded_model.predict(X_train, transform_to_str=False)
     train_score = f1_score(y_true=y_train, y_pred=train_predictions, average="weighted")
 
-    X_valid = load_feature(
-        path=general_settings.FEATURES_PATH,
-        feature_name='X_valid'
-    )[:, indexes]
-    y_valid = load_feature(
-        path=general_settings.FEATURES_PATH,
-        feature_name='y_valid'
-    )
+    X_valid = load_feature(path=general_settings.FEATURES_PATH, feature_name="X_valid")[
+        :, indexes
+    ]
+    y_valid = load_feature(path=general_settings.FEATURES_PATH, feature_name="y_valid")
     y_valid = np.max(y_valid, axis=1)
 
     valid_predictions = loaded_model.predict(X_valid, transform_to_str=False)

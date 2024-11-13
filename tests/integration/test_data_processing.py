@@ -11,10 +11,10 @@ from src.data.processing import data_processing_inference, load_dataset
 # loading the raw dataset that was used to train the model
 dataset = load_dataset(
     path=pathlib.Path.joinpath(
-        general_settings.DATA_PATH,
-        general_settings.RAW_FILE_NAME
+        general_settings.DATA_PATH, general_settings.RAW_FILE_NAME
     )
 )
+
 
 def test_data_processing_pipeline():
     """

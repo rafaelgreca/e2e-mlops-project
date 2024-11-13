@@ -7,13 +7,13 @@ from ..config.settings import general_settings
 from ..data.utils import load_feature
 
 label_encoder = load_feature(
-    path=general_settings.ARTIFACTS_PATH,
-    feature_name='label_ohe'
+    path=general_settings.ARTIFACTS_PATH, feature_name="label_ohe"
 )
 
+
 class ModelServe:
-    """The trained model's class.
-    """
+    """The trained model's class."""
+
     def __init__(
         self,
         model_name: str,
@@ -40,13 +40,17 @@ class ModelServe:
             NotImplementedError: raises NotImplementedError if the model's
                 flavor value is not 'xgboost'.
         """
-        logger.info(f"Loading the model {model_settings.MODEL_NAME} from run ID {model_settings.RUN_ID}.")
+        logger.info(
+            f"Loading the model {model_settings.MODEL_NAME} from run ID {model_settings.RUN_ID}."
+        )
 
         if self.model_flavor == "xgboost":
             model_uri = f"runs:/{model_settings.RUN_ID}/{model_settings.MODEL_NAME}"
             self.model = mlflow.xgboost.load_model(model_uri)
         else:
-            logger.critical(f"Couldn't load the model using the flavor {model_settings.MODEL_FLAVOR}.")
+            logger.critical(
+                f"Couldn't load the model using the flavor {model_settings.MODEL_FLAVOR}."
+            )
             raise NotImplementedError()
 
     def predict(self, x: np.ndarray, transform_to_str: bool = True) -> np.ndarray:

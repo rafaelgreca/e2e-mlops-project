@@ -11,6 +11,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from ..config.aws import aws_credentials
 from ..config.kaggle import kaggle_credentials
 
+
 def load_feature(
     path: pathlib.Path,
     feature_name: str,
@@ -26,6 +27,7 @@ def load_feature(
     """
     logger.info(f"Loading feature/encoder/scaler from file {path}.")
     return joblib.load(pathlib.PosixPath.joinpath(path, f"{feature_name}.pkl"))
+
 
 @logger.catch
 def download_dataset(
@@ -49,10 +51,8 @@ def download_dataset(
 
     # Downloading data using the Kaggle API through the terminal
     # os.system(f'export KAGGLE_USERNAME={kaggle_user}; export KAGGLE_KEY={kaggle_key};')
-    os.system(f'kaggle datasets download -d {name} --unzip')
-    os.system(
-        f'mv ObesityDataSet.csv {pathlib.Path.joinpath(path, new_name)}'
-    )
+    os.system(f"kaggle datasets download -d {name} --unzip")
+    os.system(f"mv ObesityDataSet.csv {pathlib.Path.joinpath(path, new_name)}")
 
     # Sending the dataset to the AWS S3 bucket
     if send_to_aws:
@@ -63,9 +63,10 @@ def download_dataset(
             )
         else:
             logger.warning(
-                "The S3 Bucket url was not specified in the 'credentials.yaml' file. " +
-                "Therefore, the dataset will not be send to S3 and it will be kept saved locally."
+                "The S3 Bucket url was not specified in the 'credentials.yaml' file. "
+                + "Therefore, the dataset will not be send to S3 and it will be kept saved locally."
             )
+
 
 @logger.catch
 def send_dataset_to_s3(

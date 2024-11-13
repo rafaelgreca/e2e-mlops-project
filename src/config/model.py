@@ -12,12 +12,14 @@ class ModelSettings(BaseModel):
     Args:
         BaseModel (pydantic.BaseModel): Pydantic base model instance.
     """
+
     MODEL_NAME: str
     VERSION: str
     MODEL_FLAVOR: str
     EXPERIMENT_ID: str
     RUN_ID: str
     FEATURES: List[str]
+
 
 model_settings = ModelSettings(
     **read_yaml_credentials_file(

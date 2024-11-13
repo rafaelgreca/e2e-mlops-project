@@ -10,9 +10,10 @@ from src.config.settings import general_settings
 with open(
     f"{Path.joinpath(general_settings.RESEARCH_ENVIRONMENT_PATH, 'VERSION')}",
     "r",
-    encoding="utf-8"
+    encoding="utf-8",
 ) as f:
     CODE_VERSION = f.readline().strip()
+
 
 def test_version_endpoint() -> None:
     """
@@ -28,6 +29,7 @@ def test_version_endpoint() -> None:
     assert all(dk in content.keys() for dk in desired_keys)
     assert model_settings.VERSION == content[desired_keys[0]]
     assert CODE_VERSION == content[desired_keys[1]]
+
 
 def test_inference_endpoint() -> None:
     """
@@ -48,7 +50,7 @@ def test_inference_endpoint() -> None:
         "SCC": "no",
         "SMOKE": "False",
         "TUE": 1,
-        "Weight": 64
+        "Weight": 64,
     }
 
     response = requests.get("http://127.0.0.1:8000/predict", json=data, timeout=100)

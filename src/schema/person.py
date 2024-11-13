@@ -2,6 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+
 class Person(BaseModel):
     """
     Person schema.
@@ -19,6 +20,7 @@ class Person(BaseModel):
     FAF - Physical activity frequency (FAF).
     TUE - Time using technology devices (TUE).
     """
+
     Age: int = Field(ge=0, le=100)
     Height: float = Field(ge=0.0, le=2.5)
     Weight: float = Field(ge=0, le=400)
@@ -27,7 +29,9 @@ class Person(BaseModel):
     SMOKE: str
     SCC: str
     CALC: str = Literal["Frequently", "Sometimes", "Always", "no"]
-    MTRANS: str = Literal["Public_Transportation", "Automobile", "Walking", "Motorbike", "Bike"]
+    MTRANS: str = Literal[
+        "Public_Transportation", "Automobile", "Walking", "Motorbike", "Bike"
+    ]
     FCVC: int = Field(ge=0, le=5)
     FAF: int = Field(ge=0, le=5)
     TUE: int = Field(ge=0, le=2)

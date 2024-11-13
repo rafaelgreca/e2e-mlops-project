@@ -39,4 +39,3 @@ if [[ "$CONFIG_S3" != "YOUR_S3_BUCKET_URL" ]]; then
 
     # deleting the create folder
     rm Original_ObesityDataSet.csv
-    

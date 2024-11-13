@@ -4,7 +4,7 @@ Here go the notebooks used for research and development. The main idea is to try
 
 ## Setup Credentials
 
-If you haven't your credentials yet, please check the `docs` folder first before following along. 
+If you haven't your credentials yet, please check the `docs` folder first before following along.
 
 1. Set your `AWS Credentials` and `Kaggle API Credentials` (used to download the dataset) in the `credentials.yaml` file.
 

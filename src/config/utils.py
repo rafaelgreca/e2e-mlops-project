@@ -6,6 +6,7 @@ from copy import deepcopy
 from pydantic import BaseModel, create_model
 from pydantic.fields import FieldInfo
 
+
 def partial_model(model: Type[BaseModel]):
     """Workaround for setting all Pydantic's fields as optional.
     All credits goes to the author:
@@ -14,9 +15,9 @@ def partial_model(model: Type[BaseModel]):
     Args:
         model (Type[BaseModel]): Pydantic base model instance.
     """
+
     def make_field_optional(
-        field: FieldInfo,
-        default: Any = None
+        field: FieldInfo, default: Any = None
     ) -> Tuple[Any, FieldInfo]:
         new = deepcopy(field)
         new.default = default
@@ -24,20 +25,17 @@ def partial_model(model: Type[BaseModel]):
         return new.annotation, new
 
     return create_model(
-        f'Partial{model.__name__}',
+        f"Partial{model.__name__}",
         __base__=model,
         __module__=model.__module__,
         **{
             field_name: make_field_optional(field_info)
             for field_name, field_info in model.model_fields.items()
-        }
+        },
     )
 
 
-def read_yaml_credentials_file(
-    file_path: Path,
-    file_name: str
-) -> Dict:
+def read_yaml_credentials_file(file_path: Path, file_name: str) -> Dict:
     """Reads a YAML file.
 
     Args:
@@ -56,7 +54,7 @@ def read_yaml_credentials_file(
         file_name,
     )
 
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, "r", encoding="utf-8") as f:
         try:
             context = yaml.safe_load(f)
         except yaml.YAMLError as e:

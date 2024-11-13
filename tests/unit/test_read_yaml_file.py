@@ -28,6 +28,7 @@ def test_kaggle_file() -> None:
     assert isinstance(kaggle_credentials.KAGGLE_USERNAME, str)
     assert isinstance(kaggle_credentials.KAGGLE_KEY, str)
 
+
 def test_model_file() -> None:
     """
     Unit case to test the function responsible for reading an YAML
@@ -39,6 +40,7 @@ def test_model_file() -> None:
     assert isinstance(model_settings.VERSION, str)
     assert isinstance(model_settings.RUN_ID, str)
     assert isinstance(model_settings.FEATURES, List)
+
 
 def test_settings_file() -> None:
     """
