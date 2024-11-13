@@ -1,3 +1,6 @@
+"""
+Creates a Pydantic's base model for the AWS' credentials.
+"""
 from pathlib import Path
 
 from pydantic import BaseModel

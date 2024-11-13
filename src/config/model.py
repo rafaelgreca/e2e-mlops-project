@@ -1,3 +1,6 @@
+"""
+Creates a Pydantic's base model for the model's configuration.
+"""
 from typing import List
 
 from pathlib import Path

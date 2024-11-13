@@ -1,3 +1,6 @@
+"""
+Creates a Pydantic's base model for the Kaggle's credentials.
+"""
 from pathlib import Path
 from pydantic import BaseModel
 

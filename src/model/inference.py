@@ -1,7 +1,12 @@
+"""
+Stores a model serve class that will be used to make predictions with
+the trained model.
+"""
 import mlflow
 import numpy as np
 from loguru import logger
 
+from ..config.aws import aws_credentials
 from ..config.model import model_settings
 from ..config.settings import general_settings
 from ..data.utils import load_feature
@@ -9,6 +14,11 @@ from ..data.utils import load_feature
 label_encoder = load_feature(
     path=general_settings.ARTIFACTS_PATH, feature_name="label_ohe"
 )
+
+if aws_credentials.EC2 != "YOUR_EC2_INSTANCE_URL":
+    mlflow.set_tracking_uri(f"http://{aws_credentials.EC2}:5000")
+else:
+    mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
 
 class ModelServe:
@@ -53,20 +63,20 @@ class ModelServe:
             )
             raise NotImplementedError()
 
-    def predict(self, x: np.ndarray, transform_to_str: bool = True) -> np.ndarray:
+    def predict(
+        self, features: np.ndarray, transform_to_str: bool = True
+    ) -> np.ndarray:
         """Uses the trained model to make a prediction on a given feature array.
 
         Args:
-            x (np.ndarray): the features array.
+            features (np.ndarray): the features array.
             transform_to_str (bool): whether to transform the prediction integer to
                 string or not. Defaults to True.
 
         Returns:
             np.ndarray: the predictions array.
         """
-        prediction = self.model.predict(x)
-
-        print(prediction.shape)
+        prediction = self.model.predict(features)
 
         if transform_to_str:
             prediction = label_encoder.inverse_transform(prediction)

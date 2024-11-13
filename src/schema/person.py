@@ -1,6 +1,31 @@
+"""
+Creates a person schema with Pydantic's base model, which will be used to
+validate the parameters value when passed to the API.
+"""
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
+
+
+@field_validator("Age", "Height", "Weight", "FCVC")
+def prevent_zero(_, value: int):
+    """
+    A function that will validate the parameter value for the
+    'Age', 'Height', 'Weight', and 'FCVC' features.
+
+    Args:
+        _ (str): the parameter's name (ignored).
+        value (int): the given parameter value for that feature.
+
+    Raises:
+        ValueError: raises an error if the value is zero.
+
+    Returns:
+        int: the parameter's value.
+    """
+    if value == 0:
+        raise ValueError("Ensure this value is not 0.")
+    return value
 
 
 class Person(BaseModel):
@@ -56,9 +81,3 @@ class Person(BaseModel):
             ]
         }
     }
-
-    @field_validator("Age", "Height", "Weight", "FCVC")
-    def prevent_zero(cls, v):
-        if v == 0:
-            raise ValueError("Ensure this value is not 0.")
-        return v

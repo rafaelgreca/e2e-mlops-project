@@ -1,3 +1,7 @@
+"""
+Stores data processing functions, such as for cleaning the data, creating new features,
+enconding categorical columns, and so on.
+"""
 import pathlib
 from typing import List, Dict
 
@@ -6,9 +10,9 @@ import pandas as pd
 from loguru import logger
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
-from .utils import load_feature
-from ..config.settings import general_settings
 from ..config.model import model_settings
+from ..config.settings import general_settings
+from .utils import load_feature
 
 
 def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
@@ -67,16 +71,17 @@ def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
     logger.info(
         f"Loading scalers 'features_sc' from path {general_settings.ARTIFACTS_PATH}."
     )
-    sc = load_feature(path=general_settings.ARTIFACTS_PATH, feature_name="features_sc")
+    scalers = load_feature(
+        path=general_settings.ARTIFACTS_PATH, feature_name="features_sc"
+    )
 
     # Scaling numerical columns
-    dataframe = _scale_numerical_columns(dataframe=dataframe, sc=sc)
+    dataframe = _scale_numerical_columns(dataframe=dataframe, scalers=scalers)
 
     # Encoding categorical columns
     dataframe = _encode_categorical_columns(
         dataframe=dataframe,
         encoders=encoders,
-        target_column=general_settings.TARGET_COLUMN,
     )
 
     # Selecting only the features that are important for the model
@@ -85,8 +90,8 @@ def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
         f"Filtering the features columns, keeping only {model_settings.FEATURES} columns."
     )
 
-    X = dataframe.values
-    return X
+    features = dataframe.values
+    return features
 
 
 def _drop_features(dataframe: pd.DataFrame, features: List) -> pd.DataFrame:
@@ -137,16 +142,16 @@ def _remove_outliers(dataframe: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: the dataframe without outliers.
     """
     # Calculating the upper and lower limits
-    q1 = dataframe["Age"].quantile(0.25)
-    q3 = dataframe["Age"].quantile(0.75)
+    quartil_1 = dataframe["Age"].quantile(0.25)
+    quartil_3 = dataframe["Age"].quantile(0.75)
     threshold = 3.5
-    iqr = q3 - q1
+    iqr = quartil_3 - quartil_1
 
     # Removing the data samples that exceeds the upper or lower limits
     dataframe = dataframe[
         ~(
-            (dataframe["Age"] >= (q3 + threshold * iqr))
-            | (dataframe["Age"] <= (q1 - threshold * iqr))
+            (dataframe["Age"] >= (quartil_3 + threshold * iqr))
+            | (dataframe["Age"] <= (quartil_1 - threshold * iqr))
         )
     ]
 
@@ -205,8 +210,8 @@ def _create_bmr_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
         Returns:
             float: the BMR value.
         """
-        s = -161 if gender == "Female" else 5
-        return (10 * weight) + (6.25 * height) - (5 * age) + s
+        s_value = -161 if gender == "Female" else 5
+        return (10 * weight) + (6.25 * height) - (5 * age) + s_value
 
     dataframe["BMR"] = dataframe.apply(
         lambda x: _calculate_bmr(x["Age"], x["Gender"], x["Height"], x["Weight"]),
@@ -251,21 +256,21 @@ def _transform_numerical_columns(
     numerical_columns = dataframe.select_dtypes(exclude="object").columns.tolist()
     logger.info(f"Applying Log Transformation to the {numerical_columns} columns.")
 
-    for nc in numerical_columns:
-        dataframe[nc] = np.log1p(dataframe[nc].values + epsilon)
+    for column in numerical_columns:
+        dataframe[column] = np.log1p(dataframe[column].values + epsilon)
 
     return dataframe
 
 
 def _scale_numerical_columns(
     dataframe: pd.DataFrame,
-    sc: Dict[str, StandardScaler],
+    scalers: Dict[str, StandardScaler],
 ) -> pd.DataFrame:
     """Scales the numerical columns using the Standard technique.
 
     Args:
         dataframe (pd.DataFrame): the dataframe.
-        sc (Dict[str, OneHotEncoder]): a dict containing the corresponding
+        scalers (Dict[str, OneHotEncoder]): a dict containing the corresponding
             encoder for each feature.
 
     Returns:
@@ -274,8 +279,10 @@ def _scale_numerical_columns(
     numerical_columns = dataframe.select_dtypes(exclude="object").columns.tolist()
     logger.info(f"Scaling the {numerical_columns} columns.")
 
-    for nc in numerical_columns:
-        dataframe[nc] = sc[nc].transform(dataframe[nc].values.reshape(-1, 1))
+    for column in numerical_columns:
+        dataframe[column] = scalers[column].transform(
+            dataframe[column].values.reshape(-1, 1)
+        )
 
     return dataframe
 
@@ -283,7 +290,6 @@ def _scale_numerical_columns(
 def _encode_categorical_columns(
     dataframe: pd.DataFrame,
     encoders: Dict[str, OneHotEncoder],
-    target_column: str,
 ) -> pd.DataFrame:
     """Encodes the categorical columns using the OneHot technique.
 
@@ -291,23 +297,21 @@ def _encode_categorical_columns(
         dataframe (pd.DataFrame): the dataframe.
         encoders (Dict[str, OneHotEncoder]): a dict containing the corresponding
             encoder for each feature.
-        target_column (str): what column is the target label.
 
     Returns:
         pd.DataFrame: the dataframe with all categorical columns encoded.
     """
     categorical_columns = dataframe.select_dtypes(include="object").columns.tolist()
-    # categorical_columns.remove(target_column)
     logger.info(f"Encoding the {categorical_columns} columns.")
 
     new_dataframe = pd.DataFrame()
 
-    for cc in categorical_columns:
+    for column in categorical_columns:
         train_categorical_features = pd.DataFrame(
-            encoders[cc].transform(dataframe[cc].values.reshape(-1, 1)),
-            columns=encoders[cc].get_feature_names_out(),
+            encoders[column].transform(dataframe[column].values.reshape(-1, 1)),
+            columns=encoders[column].get_feature_names_out(),
         )
-        train_categorical_features = train_categorical_features.add_prefix(cc + "_")
+        train_categorical_features = train_categorical_features.add_prefix(column + "_")
         new_dataframe = pd.concat([new_dataframe, train_categorical_features], axis=1)
 
     new_dataframe = pd.concat(

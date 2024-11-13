@@ -1,3 +1,6 @@
+"""
+Creates a Pydantic's base model for the general configuration settings.
+"""
 import os
 from pathlib import Path
 

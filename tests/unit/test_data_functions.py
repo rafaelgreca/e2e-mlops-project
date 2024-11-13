@@ -1,31 +1,35 @@
+"""
+Unit test cases to test the data functions code.
+"""
+import os
 import pathlib
 import re
-import os
 from typing import List
 
-import boto3
-import pytest
-import pandas.api.types as ptypes
+# import boto3
 import pandas as pd
+import pandas.api.types as ptypes
+import pytest
 import numpy as np
 
+from src.config.settings import general_settings
+
+# from src.config.aws import aws_credentials
 from src.data.processing import (
-    _drop_features,
+    _categorize_numerical_columns,
     _change_height_units,
-    load_dataset,
-    _remove_duplicates,
-    _remove_outliers,
-    _create_is_feature,
     _create_bmi_feature,
     _create_bmr_feature,
-    _categorize_numerical_columns,
+    _create_is_feature,
+    _drop_features,
+    _encode_categorical_columns,
+    _remove_duplicates,
+    _remove_outliers,
     _scale_numerical_columns,
     _transform_numerical_columns,
-    _encode_categorical_columns,
+    load_dataset,
 )
-from src.config.settings import general_settings
-from src.config.aws import aws_credentials
-from src.data.utils import load_feature, download_dataset
+from src.data.utils import download_dataset, load_feature
 
 # loading the raw dataset that was used to train the model
 dataset = load_dataset(
@@ -186,16 +190,18 @@ def test_scale_numerical_columns():
 
     numerical_columns = _dataset.select_dtypes(exclude="object").columns.tolist()
 
-    sc = load_feature(path=general_settings.ARTIFACTS_PATH, feature_name="features_sc")
-    _dataset2 = _scale_numerical_columns(dataframe=_dataset, sc=sc)
+    scalers = load_feature(
+        path=general_settings.ARTIFACTS_PATH, feature_name="features_sc"
+    )
+    _dataset2 = _scale_numerical_columns(dataframe=_dataset, scalers=scalers)
 
-    for nc in numerical_columns:
-        assert _dataset2[nc].mean(axis=0) == 0
-        assert _dataset2[nc].std(axis=0) == 1
-        assert _dataset[nc].mean(axis=0) > _dataset2[nc].mean(axis=0)
-        assert _dataset[nc].var(axis=0) > _dataset2[nc].var(axis=0)
-        assert _dataset[nc].std(axis=0) > _dataset2[nc].std(axis=0)
-        assert isinstance(_dataset2[nc].dtype, type(np.dtype("float64")))
+    for column in numerical_columns:
+        assert _dataset2[column].mean(axis=0) == 0
+        assert _dataset2[column].std(axis=0) == 1
+        assert _dataset[column].mean(axis=0) > _dataset2[column].mean(axis=0)
+        assert _dataset[column].var(axis=0) > _dataset2[column].var(axis=0)
+        assert _dataset[column].std(axis=0) > _dataset2[column].std(axis=0)
+        assert isinstance(_dataset2[column].dtype, type(np.dtype("float64")))
 
 
 def test_transform_numerical_columns():
@@ -214,12 +220,12 @@ def test_transform_numerical_columns():
 
     _dataset2 = _transform_numerical_columns(dataframe=_dataset)
 
-    for nc in numerical_columns:
-        assert _dataset[nc].mean(axis=0) != _dataset2[nc].mean(axis=0)
-        assert _dataset[nc].var(axis=0) != _dataset2[nc].var(axis=0)
-        assert _dataset[nc].std(axis=0) != _dataset2[nc].std(axis=0)
-        assert _dataset[nc].max(axis=0) != _dataset2[nc].max(axis=0)
-        assert _dataset[nc].min(axis=0) != _dataset2[nc].min(axis=0)
+    for column in numerical_columns:
+        assert _dataset[column].mean(axis=0) != _dataset2[column].mean(axis=0)
+        assert _dataset[column].var(axis=0) != _dataset2[column].var(axis=0)
+        assert _dataset[column].std(axis=0) != _dataset2[column].std(axis=0)
+        assert _dataset[column].max(axis=0) != _dataset2[column].max(axis=0)
+        assert _dataset[column].min(axis=0) != _dataset2[column].min(axis=0)
 
 
 def test_encode_categorical_columns():
@@ -234,13 +240,14 @@ def test_encode_categorical_columns():
     encoders = load_feature(
         path=general_settings.ARTIFACTS_PATH, feature_name="features_ohe"
     )
-    _dataset2 = _encode_categorical_columns(
-        dataframe=_dataset, encoders=encoders, target_column="NObeyesdad"
-    )
+    _dataset2 = _encode_categorical_columns(dataframe=_dataset, encoders=encoders)
 
-    for cc in categorical_columns:
-        assert cc in _dataset.columns.tolist() and cc not in _dataset2.columns.tolist()
-        assert any(re.findall(f"{cc}_", c) for c in _dataset2.columns.tolist())
+    for column in categorical_columns:
+        assert (
+            column in _dataset.columns.tolist()
+            and column not in _dataset2.columns.tolist()
+        )
+        assert any(re.findall(f"{column}_", c) for c in _dataset2.columns.tolist())
         assert _dataset.shape[1] != _dataset2.shape[1]
 
 

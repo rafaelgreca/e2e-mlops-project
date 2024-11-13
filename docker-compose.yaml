@@ -18,13 +18,13 @@ services:
     # exposing the port that will be used by MLFlow and Jupyter Notebook
     ports:
       - "8888:8888"
-    
+
     # setting external volumes
     volumes:
       - ./credentials.yaml:/e2e-project/credentials.yaml
       - ./models:/e2e-project/models/
       - ./data:/e2e-project/data/
-    
+
   dev-mlflow:
     image: e2e-dev:latest
     build:
@@ -39,7 +39,7 @@ services:
     # exposing the port that will be used by MLFlow and Jupyter Notebook
     ports:
       - "5000:5000"
-    
+
     # setting external volumes
     volumes:
       - ./credentials.yaml:/e2e-project/credentials.yaml

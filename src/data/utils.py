@@ -1,12 +1,16 @@
-import os
+"""
+Stores auxiliary functions (such as for loading features or downloading the dataset)
+that will be used with the main data processing functions.
+"""
 import pathlib
-import joblib
+import os
 from typing import Union
 
 import boto3
+import joblib
 import numpy as np
 from loguru import logger
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from ..config.aws import aws_credentials
 from ..config.kaggle import kaggle_credentials
@@ -79,13 +83,13 @@ def send_dataset_to_s3(
         file_path (pathlib.Path): the dataset file's path.
         file_name (str): the file's name.
     """
-    s3 = boto3.client(
+    bucket = boto3.client(
         "s3",
         aws_access_key_id=aws_credentials.AWS_ACCESS_KEY,
         aws_secret_access_key=aws_credentials.AWS_SECRET_KEY,
     )
 
-    s3.upload_file(
+    bucket.upload_file(
         file_path,
         aws_credentials.S3,
         file_name,

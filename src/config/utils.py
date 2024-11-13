@@ -1,38 +1,11 @@
-import yaml
+"""
+Stores auxiliary functions (such as for reading an YAML file)
+that will be used with the main configurations functions.
+"""
 from pathlib import Path
-from typing import Dict, Optional, Type, Any, Tuple
-from copy import deepcopy
+from typing import Dict
 
-from pydantic import BaseModel, create_model
-from pydantic.fields import FieldInfo
-
-
-def partial_model(model: Type[BaseModel]):
-    """Workaround for setting all Pydantic's fields as optional.
-    All credits goes to the author:
-    https://stackoverflow.com/questions/67699451/make-every-field-as-optional-with-pydantic
-
-    Args:
-        model (Type[BaseModel]): Pydantic base model instance.
-    """
-
-    def make_field_optional(
-        field: FieldInfo, default: Any = None
-    ) -> Tuple[Any, FieldInfo]:
-        new = deepcopy(field)
-        new.default = default
-        new.annotation = Optional[field.annotation]  # type: ignore
-        return new.annotation, new
-
-    return create_model(
-        f"Partial{model.__name__}",
-        __base__=model,
-        __module__=model.__module__,
-        **{
-            field_name: make_field_optional(field_info)
-            for field_name, field_info in model.model_fields.items()
-        },
-    )
+import yaml
 
 
 def read_yaml_credentials_file(file_path: Path, file_name: str) -> Dict:
@@ -43,7 +16,7 @@ def read_yaml_credentials_file(file_path: Path, file_name: str) -> Dict:
         file_name (str): the file's name.
 
     Raises:
-        e: If any error occurs when trying to read the YAML
+        error: If any error occurs when trying to read the YAML
             file, then returns the error to the user.
 
     Returns:
@@ -54,10 +27,10 @@ def read_yaml_credentials_file(file_path: Path, file_name: str) -> Dict:
         file_name,
     )
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as file:
         try:
-            context = yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            raise e
+            context = yaml.safe_load(file)
+        except yaml.YAMLError as error:
+            raise error
 
     return context

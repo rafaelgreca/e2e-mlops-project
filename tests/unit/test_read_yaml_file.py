@@ -1,6 +1,9 @@
+"""
+Unit test cases to test the model functions code.
+"""
 import pathlib
-from typing import List
 from os import PathLike
+from typing import List
 
 from src.config.aws import aws_credentials
 from src.config.kaggle import kaggle_credentials

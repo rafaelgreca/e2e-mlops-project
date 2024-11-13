@@ -1,11 +1,14 @@
+"""
+Integration cases to test the data processing pipeline.
+"""
 import pathlib
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from src.config.settings import general_settings
-from src.config.model import model_settings
 from src.data.processing import data_processing_inference, load_dataset
+from src.config.model import model_settings
+from src.config.settings import general_settings
 
 
 # loading the raw dataset that was used to train the model
@@ -16,15 +19,15 @@ dataset = load_dataset(
 )
 
 
-def test_data_processing_pipeline():
+def test_data_processing_pipeline() -> None:
     """
     Testing the integration of the entire data processing pipeline.
     """
     _dataset = dataset.copy()
     _dataset = _dataset.drop(columns=general_settings.TARGET_COLUMN)
 
-    X = data_processing_inference(dataframe=_dataset)
+    features = data_processing_inference(dataframe=_dataset)
 
     assert isinstance(_dataset, pd.DataFrame)
-    assert isinstance(X, np.ndarray)
-    assert X.shape[1] == len(model_settings.FEATURES)
+    assert isinstance(features, np.ndarray)
+    assert features.shape[1] == len(model_settings.FEATURES)
