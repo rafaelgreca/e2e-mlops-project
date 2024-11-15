@@ -8,7 +8,7 @@ from typing import List, Dict
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelBinarizer
 
 from ..config.model import model_settings
 from ..config.settings import general_settings
@@ -322,13 +322,13 @@ def _encode_categorical_columns(
 
 def _encode_labels_array(
     array: np.ndarray,
-    encoder: OneHotEncoder,
+    encoder: LabelBinarizer,
 ) -> pd.DataFrame:
-    """Encodes an array containing the labels (e.g., transform strings to OneHotEncoder).
+    """Encodes an array containing the labels (e.g., transform strings to LabelBinarizer).
 
     Args:
         array (np.ndarray): the labels array.
-        encoder (OneHotEncoder): the OneHotEncoder instance.
+        encoder (LabelBinarizer): the LabelBinarizer instance.
 
     Returns:
         pd.DataFrame: the encoded array.

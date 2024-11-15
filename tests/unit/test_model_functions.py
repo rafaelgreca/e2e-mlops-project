@@ -78,7 +78,7 @@ def test_prediction() -> None:
 
     data = pd.DataFrame.from_dict([data])
     features = data_processing_inference(data)
-    prediction = loaded_model.predict(features).tolist()[0][0]
+    prediction = loaded_model.predict(features).tolist()[0]
 
     assert isinstance(prediction, str)
     assert prediction == correct_prediction

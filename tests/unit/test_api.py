@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict
 
 import requests
+from fastapi.responses import FileResponse
 
 from src.config.model import model_settings
 from src.config.settings import general_settings
@@ -34,11 +35,87 @@ def test_version_endpoint() -> None:
     assert CODE_VERSION == content[desired_keys[1]]
 
 
+def test_model_performance_report_endpoint() -> None:
+    """
+    Unit case to test the API's model performance report endpoint.
+    """
+    window_size = 300
+    path = "results/model_performance.html"
+    headers = {"Accept-Encoding": "identity"}
+
+    response = requests.get(
+        f"http://127.0.0.1:8000/monitor-model?window_size={window_size}",
+        timeout=100,
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert Path.exists(Path(path))
+
+
+def test_target_drift_report_endpoint() -> None:
+    """
+    Unit case to test the API's target drift report endpoint.
+    """
+    window_size = 300
+    path = "results/target_drift.html"
+    headers = {"Accept-Encoding": "identity"}
+
+    response = requests.get(
+        f"http://127.0.0.1:8000/monitor-target?window_size={window_size}",
+        timeout=100,
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert Path.exists(Path(path))
+
+
+def test_data_drift_report_endpoint() -> None:
+    """
+    Unit case to test the API's data drift report endpoint.
+    """
+    window_size = 300
+    path = "results/data_drift.html"
+    headers = {"Accept-Encoding": "identity"}
+
+    response = requests.get(
+        f"http://127.0.0.1:8000/monitor-data?window_size={window_size}",
+        timeout=100,
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert Path.exists(Path(path))
+
+
+def test_data_quality_report_endpoint() -> None:
+    """
+    Unit case to test the API's data quality report endpoint.
+    """
+    window_size = 300
+    path = "results/data_quality.html"
+    headers = {"Accept-Encoding": "identity"}
+
+    response = requests.get(
+        f"http://127.0.0.1:8000/monitor-data-quality?window_size={window_size}",
+        timeout=100,
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert Path.exists(Path(path))
+
+
 def test_inference_endpoint() -> None:
     """
     Unit case to test the API's inference endpoint.
     """
-    desired_classes = [["Normal_Weight"]]
+    desired_classes = ["Normal_Weight"]
     desired_keys = ["predictions"]
 
     data = {
@@ -56,7 +133,7 @@ def test_inference_endpoint() -> None:
         "Weight": 64,
     }
 
-    response = requests.get("http://127.0.0.1:8000/predict", json=data, timeout=100)
+    response = requests.post("http://127.0.0.1:8000/predict", json=data, timeout=100)
     content = json.loads(response.text)
 
     assert response.status_code == 200

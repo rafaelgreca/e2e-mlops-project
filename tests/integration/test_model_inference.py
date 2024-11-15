@@ -47,8 +47,10 @@ def test_model_inference_pipeline() -> None:
     assert predictions.shape[0] == features.shape[0]
     assert isinstance(predictions.dtype, type(np.dtype("float64")))
 
-    # predictions = loaded_model.predict(x, transform_to_str=True)
+    predictions = loaded_model.predict(features, transform_to_str=True)
 
-    # assert isinstance(predictions, List)
-    # assert len(predictions) == x.shape[0]
-    # assert isinstance(type(predictions[0]), str)
+    assert isinstance(predictions, np.ndarray)
+    assert len(predictions) == features.shape[0]
+
+    predictions = predictions.tolist()
+    assert isinstance(predictions[0], str)

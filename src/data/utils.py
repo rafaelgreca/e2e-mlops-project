@@ -39,6 +39,7 @@ def download_dataset(
     new_name: str,
     path: pathlib.Path,
     send_to_aws: bool,
+    type: str,
 ) -> None:
     """Dowload the dataset using Kaggle's API.
 
@@ -47,6 +48,7 @@ def download_dataset(
         new_name (str): the dataset file's new name.
         path (pathlib.Path): the path where the dataset will be stored locally.
         send_to_aws (bool): whether the dataset will be send to an AWS S3 bucket or not.
+        type (str): what kind of dataset will be downloaded ('raw' or 'current').
     """
     os.environ["KAGGLE_USERNAME"] = kaggle_credentials.KAGGLE_USERNAME
     os.environ["KAGGLE_KEY"] = kaggle_credentials.KAGGLE_KEY
@@ -54,9 +56,20 @@ def download_dataset(
     logger.info(f"Downloading dataset {name} and saving into the folder {path}.")
 
     # Downloading data using the Kaggle API through the terminal
-    # os.system(f'export KAGGLE_USERNAME={kaggle_user}; export KAGGLE_KEY={kaggle_key};')
-    os.system(f"kaggle datasets download -d {name} --unzip")
-    os.system(f"mv ObesityDataSet.csv {pathlib.Path.joinpath(path, new_name)}")
+    if type == "raw":
+        os.system(f"kaggle datasets download -d {name} --unzip")
+        os.system(f"mv ObesityDataSet.csv {pathlib.Path.joinpath(path, new_name)}")
+    elif type == "current":
+        os.system(f"kaggle competitions download -c {name}")
+        os.system(f"unzip {name}.zip")
+
+        # deleting the zip file, the sample submission file, and
+        # the test file, as we are only using the training data for now
+        os.system(f"rm {name}.zip sample_submission.csv test.csv")
+
+        os.system(f"mv train.csv {pathlib.Path.joinpath(path, new_name)}")
+    else:
+        raise ValueError("The value for 'type' must be 'raw' or 'current'.\n")
 
     # Sending the dataset to the AWS S3 bucket
     if send_to_aws:

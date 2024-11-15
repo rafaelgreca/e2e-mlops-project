@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # function responsible for parsing the credentials yaml file
 function parse_yaml {
@@ -27,15 +27,36 @@ export KAGGLE_KEY="$CONFIG_KAGGLE_KEY"
 export AWS_ACCESS_KEY_ID="$CONFIG_AWS_ACCESS_KEY"
 export AWS_SECRET_ACCESS_KEY="$CONFIG_AWS_SECRET_KEY"
 
-# downloading the dataset using the kaggle's api
-kaggle datasets download -d aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster --unzip
+if [ "$1" == "raw" ]; then
+    file_name=Original_ObesityDataSet.csv
 
-# renaming the csv file
-mv ObesityDataSet.csv Original_ObesityDataSet.csv
+    # downloading the raw dataset using the kaggle's api
+    kaggle datasets download -d aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster --unzip
+
+    # renaming the csv file
+    mv ObesityDataSet.csv "$file_name"
+
+elif [ "$1" == "current" ]; then
+    file_name=Current_ObesityDataSet.csv
+
+    # downloading the current dataset using the kaggle's api
+    kaggle competitions download -c playground-series-s4e2
+
+    # unzip the file
+    unzip playground-series-s4e2.zip
+
+    # deleting the zip file, the sample submission file, and
+    # the test file, as we are only using the training data for now
+    rm playground-series-s4e2.zip sample_submission.csv test.csv
+
+    # renaming the csv file
+    mv train.csv "$file_name"
+fi
 
 if [[ "$CONFIG_S3" != "YOUR_S3_BUCKET_URL" ]]; then
     # copying the csv file to the s3 bucket
-    aws s3 cp Original_ObesityDataSet.csv s3://$"$CONFIG_S3"
+    aws s3 cp "$file_name" s3://$"$CONFIG_S3"
 
     # deleting the create folder
-    rm Original_ObesityDataSet.csv
+    rm "$file_name"
+fi

@@ -281,7 +281,7 @@ def test_load_dataset():
     assert dataset.shape[0] == 2111
 
 
-def test_download_dataset():
+def test_download_raw_dataset():
     """
     Unit case to test the function that downloads the original, raw dataset.
     """
@@ -301,12 +301,37 @@ def test_download_dataset():
         new_name=general_settings.RAW_FILE_NAME,
         path=general_settings.DATA_PATH,
         send_to_aws=False,
+        type="raw",
     )
 
     assert pathlib.Path.exists(
         pathlib.Path.joinpath(
             general_settings.DATA_PATH, general_settings.RAW_FILE_NAME
         )
+    )
+
+
+def test_download_current_dataset():
+    """
+    Unit case to test the function that downloads the current dataset.
+    """
+    if pathlib.Path.exists(
+        pathlib.Path.joinpath(general_settings.DATA_PATH, "playground-series-s4e2")
+    ):
+        os.remove(
+            pathlib.Path.joinpath(general_settings.DATA_PATH, "playground-series-s4e2")
+        )
+
+    download_dataset(
+        name="playground-series-s4e2",
+        new_name="Current_ObesityDataSet.csv",
+        path=general_settings.DATA_PATH,
+        send_to_aws=False,
+        type="current",
+    )
+
+    assert pathlib.Path.exists(
+        pathlib.Path.joinpath(general_settings.DATA_PATH, "Current_ObesityDataSet.csv")
     )
 
 
@@ -333,6 +358,7 @@ def test_download_dataset():
 #         new_name=general_settings.RAW_FILE_NAME,
 #         path=general_settings.DATA_PATH,
 #         send_to_aws=True,
+#         type="raw",
 #     )
 
 #     assert not pathlib.Path.exists(
