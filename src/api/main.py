@@ -38,7 +38,7 @@ download_dataset(
     new_name="Current_ObesityDataSet.csv",
     path=general_settings.DATA_PATH,
     send_to_aws=False,
-    type="current",
+    file_type="current",
 )
 current_dataset = load_dataset(
     path=Path.joinpath(general_settings.DATA_PATH, "Current_ObesityDataSet.csv")

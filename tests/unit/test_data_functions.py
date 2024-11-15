@@ -301,7 +301,7 @@ def test_download_raw_dataset():
         new_name=general_settings.RAW_FILE_NAME,
         path=general_settings.DATA_PATH,
         send_to_aws=False,
-        type="raw",
+        file_type="raw",
     )
 
     assert pathlib.Path.exists(
@@ -327,7 +327,7 @@ def test_download_current_dataset():
         new_name="Current_ObesityDataSet.csv",
         path=general_settings.DATA_PATH,
         send_to_aws=False,
-        type="current",
+        file_type="current",
     )
 
     assert pathlib.Path.exists(
@@ -358,7 +358,7 @@ def test_download_current_dataset():
 #         new_name=general_settings.RAW_FILE_NAME,
 #         path=general_settings.DATA_PATH,
 #         send_to_aws=True,
-#         type="raw",
+#         file_type="raw",
 #     )
 
 #     assert not pathlib.Path.exists(

@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Dict
 
 import requests
-from fastapi.responses import FileResponse
 
 from src.config.model import model_settings
 from src.config.settings import general_settings
