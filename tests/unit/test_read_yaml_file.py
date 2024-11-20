@@ -9,6 +9,7 @@ from src.config.aws import aws_credentials
 from src.config.kaggle import kaggle_credentials
 from src.config.model import model_settings
 from src.config.settings import general_settings
+from src.config.log import log_settings
 
 
 def test_aws_file() -> None:
@@ -53,13 +54,14 @@ def test_settings_file() -> None:
     assert isinstance(general_settings.DATA_PATH, PathLike)
     assert pathlib.Path.exists(general_settings.DATA_PATH)
     assert isinstance(general_settings.RAW_FILE_NAME, str)
+    assert isinstance(general_settings.CURRENT_FILE_NAME, str)
     assert isinstance(general_settings.ARTIFACTS_PATH, PathLike)
     assert pathlib.Path.exists(general_settings.ARTIFACTS_PATH)
     assert isinstance(general_settings.FEATURES_PATH, PathLike)
     assert pathlib.Path.exists(general_settings.ARTIFACTS_PATH)
     assert isinstance(general_settings.TARGET_COLUMN, str)
-    assert isinstance(general_settings.LOG_LEVEL, str)
-    assert isinstance(general_settings.LOG_PATH, PathLike)
-    assert pathlib.Path.exists(general_settings.LOG_PATH)
+    assert isinstance(log_settings.LOG_LEVEL, str)
+    assert isinstance(log_settings.LOG_PATH, PathLike)
+    assert pathlib.Path.exists(log_settings.LOG_PATH)
     assert isinstance(general_settings.RESEARCH_ENVIRONMENT_PATH, PathLike)
     assert pathlib.Path.exists(general_settings.RESEARCH_ENVIRONMENT_PATH)

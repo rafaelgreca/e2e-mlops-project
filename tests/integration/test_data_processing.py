@@ -15,7 +15,8 @@ from src.config.settings import general_settings
 dataset = load_dataset(
     path=pathlib.Path.joinpath(
         general_settings.DATA_PATH, general_settings.RAW_FILE_NAME
-    )
+    ),
+    from_aws=False,
 )
 
 
@@ -24,7 +25,7 @@ def test_data_processing_pipeline() -> None:
     Testing the integration of the entire data processing pipeline.
     """
     _dataset = dataset.copy()
-    _dataset = _dataset.drop(columns=general_settings.TARGET_COLUMN)
+    _dataset = _dataset.drop(columns=["id", general_settings.TARGET_COLUMN])
 
     features = data_processing_inference(dataframe=_dataset)
 

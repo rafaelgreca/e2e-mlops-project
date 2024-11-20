@@ -1,50 +1,26 @@
 """
 Unit test cases to test the model functions code.
 """
-import pathlib
-
 # import numpy as np
 import pandas as pd
 
 # from sklearn.metrics import f1_score
-from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
 
 from src.config.model import model_settings
-from src.config.settings import general_settings
-from src.data.processing import data_processing_inference, load_dataset
-from src.data.utils import load_feature
+from src.data.processing import data_processing_inference
 from src.model.inference import ModelServe
-
-# loading the label encoder
-label_encoder = load_feature(
-    path=general_settings.ARTIFACTS_PATH, feature_name="label_ohe"
-)
-
-# loading the processed dataset that will be used to get
-# the index of the used columns
-dataset = load_dataset(
-    path=pathlib.Path.joinpath(
-        general_settings.DATA_PATH, "Preprocessed_ObesityDataSet.csv"
-    )
-)
-FEATURES_NAME = dataset.columns.tolist()
+from . import loaded_model
 
 
 def test_load_model() -> None:
     """
     Unit case to test loading a trained model from MLflow.
     """
-    loaded_model = ModelServe(
-        model_name=model_settings.MODEL_NAME,
-        model_flavor=model_settings.MODEL_FLAVOR,
-        model_version=model_settings.VERSION,
-    )
-    loaded_model.load()
-
     assert loaded_model.model is not None
 
     if model_settings.MODEL_FLAVOR == "xgboost":
-        assert isinstance(loaded_model.model, XGBClassifier)
+        assert isinstance(loaded_model.model, LGBMClassifier)
 
     assert isinstance(loaded_model, ModelServe)
 
@@ -53,28 +29,22 @@ def test_prediction() -> None:
     """
     Unit case to test making a prediction with the loaded model.
     """
-    loaded_model = ModelServe(
-        model_name=model_settings.MODEL_NAME,
-        model_flavor=model_settings.MODEL_FLAVOR,
-        model_version=model_settings.VERSION,
-    )
-    loaded_model.load()
-
     data = {
-        "Age": 21,
-        "CAEC": "Sometimes",
-        "CALC": "no",
-        "FAF": 0,
-        "FCVC": 2,
-        "Gender": "Female",
-        "Height": 1.62,
+        "Age": 24.443011,
+        "Height": 1.699998,
+        "Weight": 81.66995,
+        "Gender": "Male",
+        "family_history_with_overweight": "yes",
+        "CALC": "Sometimes",
         "MTRANS": "Public_Transportation",
-        "SCC": "no",
-        "SMOKE": "False",
+        "FAVC": "yes",
+        "FCVC": 2,
+        "NCP": 2.983297,
+        "CH2O": 2.763573,
+        "FAF": 0,
         "TUE": 1,
-        "Weight": 64,
     }
-    correct_prediction = "Normal_Weight"
+    correct_prediction = "Overweight_Level_II"
 
     data = pd.DataFrame.from_dict([data])
     features = data_processing_inference(data)
@@ -82,39 +52,3 @@ def test_prediction() -> None:
 
     assert isinstance(prediction, str)
     assert prediction == correct_prediction
-
-
-# def test_model_performance() -> None:
-#     """
-#     Unit case to test the model performance on training and validation sets
-#     (making sure that are the same values as mentioned in MLflow's UI).
-#     """
-#     indexes = [FEATURES_NAME.index(i) for i in model_settings.FEATURES]
-
-#     loaded_model = ModelServe(
-#         model_name=model_settings.MODEL_NAME,
-#         model_flavor=model_settings.MODEL_FLAVOR,
-#         model_version=model_settings.VERSION,
-#     )
-#     loaded_model.load()
-
-#     x_train = load_feature(path=general_settings.FEATURES_PATH, feature_name="X_train")[
-#         :, indexes
-#     ]
-#     y_train = load_feature(path=general_settings.FEATURES_PATH, feature_name="y_train")
-#     y_train = np.max(y_train, axis=1)
-
-#     train_predictions = loaded_model.predict(x_train, transform_to_str=False)
-#     train_score = f1_score(y_true=y_train, y_pred=train_predictions, average="weighted")
-
-#     x_valid = load_feature(path=general_settings.FEATURES_PATH, feature_name="X_valid")[
-#         :, indexes
-#     ]
-#     y_valid = load_feature(path=general_settings.FEATURES_PATH, feature_name="y_valid")
-#     y_valid = np.max(y_valid, axis=1)
-
-#     valid_predictions = loaded_model.predict(x_valid, transform_to_str=False)
-#     valid_score = f1_score(y_true=y_valid, y_pred=valid_predictions, average="weighted")
-
-#     assert train_score == train_score
-#     assert valid_score == valid_score

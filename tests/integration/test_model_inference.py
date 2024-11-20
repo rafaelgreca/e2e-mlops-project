@@ -1,22 +1,13 @@
 """
 Integration cases to test the model inference pipeline.
 """
-import pathlib
-
 import numpy as np
 import pandas as pd
 
 from src.config.model import model_settings
 from src.config.settings import general_settings
-from src.data.processing import data_processing_inference, load_dataset
-from src.model.inference import ModelServe
-
-# loading the raw dataset that was used to train the model
-dataset = load_dataset(
-    path=pathlib.Path.joinpath(
-        general_settings.DATA_PATH, general_settings.RAW_FILE_NAME
-    )
-)
+from src.data.processing import data_processing_inference
+from . import dataset, loaded_model
 
 
 def test_model_inference_pipeline() -> None:
@@ -24,7 +15,7 @@ def test_model_inference_pipeline() -> None:
     Testing the integration of the entire model inference pipeline.
     """
     _dataset = dataset.copy()
-    _dataset = _dataset.drop(columns=general_settings.TARGET_COLUMN)
+    _dataset = _dataset.drop(columns=["id", general_settings.TARGET_COLUMN])
 
     features = data_processing_inference(dataframe=_dataset)
 
@@ -32,20 +23,13 @@ def test_model_inference_pipeline() -> None:
     assert isinstance(features, np.ndarray)
     assert features.shape[1] == len(model_settings.FEATURES)
 
-    loaded_model = ModelServe(
-        model_name=model_settings.MODEL_NAME,
-        model_flavor=model_settings.MODEL_FLAVOR,
-        model_version=model_settings.VERSION,
-    )
-    loaded_model.load()
-
     assert loaded_model.model is not None
 
     predictions = loaded_model.predict(features, transform_to_str=False)
 
     assert isinstance(predictions, np.ndarray)
     assert predictions.shape[0] == features.shape[0]
-    assert isinstance(predictions.dtype, type(np.dtype("float64")))
+    assert isinstance(predictions.dtype, type(np.dtype("int64")))
 
     predictions = loaded_model.predict(features, transform_to_str=True)
 

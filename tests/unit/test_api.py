@@ -8,14 +8,7 @@ from typing import Dict
 import requests
 
 from src.config.model import model_settings
-from src.config.settings import general_settings
-
-with open(
-    f"{Path.joinpath(general_settings.RESEARCH_ENVIRONMENT_PATH, 'VERSION')}",
-    "r",
-    encoding="utf-8",
-) as f:
-    CODE_VERSION = f.readline().strip()
+from . import CODE_VERSION
 
 
 def test_version_endpoint() -> None:
@@ -114,22 +107,23 @@ def test_inference_endpoint() -> None:
     """
     Unit case to test the API's inference endpoint.
     """
-    desired_classes = ["Normal_Weight"]
+    desired_classes = ["Overweight_Level_II"]
     desired_keys = ["predictions"]
 
     data = {
-        "Age": 21,
-        "CAEC": "Sometimes",
-        "CALC": "no",
-        "FAF": 0,
-        "FCVC": 2,
-        "Gender": "Female",
-        "Height": 1.62,
+        "Age": 24.443011,
+        "Height": 1.699998,
+        "Weight": 81.66995,
+        "Gender": "Male",
+        "family_history_with_overweight": "yes",
+        "CALC": "Sometimes",
         "MTRANS": "Public_Transportation",
-        "SCC": "no",
-        "SMOKE": "False",
+        "FAVC": "yes",
+        "FCVC": 2,
+        "NCP": 2.983297,
+        "CH2O": 2.763573,
+        "FAF": 0,
         "TUE": 1,
-        "Weight": 64,
     }
 
     response = requests.post("http://127.0.0.1:8000/predict", json=data, timeout=100)
