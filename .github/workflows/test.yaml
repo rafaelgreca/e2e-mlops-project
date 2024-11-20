@@ -18,4 +18,4 @@ jobs:
 
     - name: Testing with Pytest
       run: |
-        pytest --cov-report html:./results/cov_html --cov=src/ tests/
+        pytest --cov-report html:./reports/cov_html --cov=src/ tests/
