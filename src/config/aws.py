@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from .utils import read_yaml_credentials_file
+from . import read_yaml_credentials_file
 
 
 class AWSCredentials(BaseModel):
@@ -24,10 +24,7 @@ class AWSCredentials(BaseModel):
 
 aws_credentials = AWSCredentials(
     **read_yaml_credentials_file(
-        file_path=Path.joinpath(
-            Path(__file__).resolve().parents[2],
-            "config",
-        ),
+        file_path=Path(__file__).resolve().parents[0],
         file_name="credentials.yaml",
     )
 )

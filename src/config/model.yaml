@@ -1,0 +1,6 @@
+FEATURES: ['Age_x0_q4', 'family_history_with_overweight_x0_yes', 'FAVC_x0_yes', 'CALC_x0_Sometimes', 'CALC_x0_no', 'MTRANS_x0_Bike', 'MTRANS_x0_Public_Transportation', 'Weight', 'FCVC', 'NCP', 'CH2O', 'FAF', 'BMI', 'PAL', 'BSA', 'IBW']
+MODEL_NAME: 'lightgbm'
+MODEL_FLAVOR: 'lightgbm'
+RUN_ID: 'e65c4c2c02bd485d9e1b44e11e0636d9'
+EXPERIMENT_ID: '985564224715613122'
+VERSION: '2.0'

@@ -4,7 +4,7 @@ Creates a Pydantic's base model for the Kaggle's credentials.
 from pathlib import Path
 from pydantic import BaseModel
 
-from .utils import read_yaml_credentials_file
+from . import read_yaml_credentials_file
 
 
 class KaggleCredentials(BaseModel):
@@ -20,10 +20,7 @@ class KaggleCredentials(BaseModel):
 
 kaggle_credentials = KaggleCredentials(
     **read_yaml_credentials_file(
-        file_path=Path.joinpath(
-            Path(__file__).resolve().parents[2],
-            "config",
-        ),
+        file_path=Path(__file__).resolve().parents[0],
         file_name="credentials.yaml",
     )
 )

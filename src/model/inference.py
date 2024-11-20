@@ -48,15 +48,15 @@ class ModelServe:
 
         Raises:
             NotImplementedError: raises NotImplementedError if the model's
-                flavor value is not 'xgboost'.
+                flavor value is not 'lightbm'.
         """
         logger.info(
             f"Loading the model {model_settings.MODEL_NAME} from run ID {model_settings.RUN_ID}."
         )
 
-        if self.model_flavor == "xgboost":
+        if self.model_flavor == "lightgbm":
             model_uri = f"runs:/{model_settings.RUN_ID}/{model_settings.MODEL_NAME}"
-            self.model = mlflow.xgboost.load_model(model_uri)
+            self.model = mlflow.lightgbm.load_model(model_uri)
         else:
             logger.critical(
                 f"Couldn't load the model using the flavor {model_settings.MODEL_FLAVOR}."
@@ -79,9 +79,9 @@ class ModelServe:
         prediction = self.model.predict(features)
 
         if transform_to_str:
-            prediction = label_encoder.inverse_transform(prediction)
-        else:
-            prediction = np.max(prediction, axis=1)
+            one_hot = np.zeros((prediction.size, prediction.max() + 1))
+            one_hot[np.arange(prediction.size), prediction] = 1
+            prediction = label_encoder.inverse_transform(one_hot)
 
         logger.info(f"Prediction: {prediction}.")
         return prediction

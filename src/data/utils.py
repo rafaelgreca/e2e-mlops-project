@@ -56,10 +56,10 @@ def download_dataset(
     logger.info(f"Downloading dataset {name} and saving into the folder {path}.")
 
     # Downloading data using the Kaggle API through the terminal
-    if file_type == "raw":
+    if file_type == "current":
         os.system(f"kaggle datasets download -d {name} --unzip")
         os.system(f"mv ObesityDataSet.csv {pathlib.Path.joinpath(path, new_name)}")
-    elif file_type == "current":
+    elif file_type == "raw":
         os.system(f"kaggle competitions download -c {name}")
         os.system(f"unzip {name}.zip")
 

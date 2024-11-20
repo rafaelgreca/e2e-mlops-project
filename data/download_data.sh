@@ -27,8 +27,8 @@ export KAGGLE_KEY="$CONFIG_KAGGLE_KEY"
 export AWS_ACCESS_KEY_ID="$CONFIG_AWS_ACCESS_KEY"
 export AWS_SECRET_ACCESS_KEY="$CONFIG_AWS_SECRET_KEY"
 
-if [ "$1" == "raw" ]; then
-    file_name=Original_ObesityDataSet.csv
+if [ "$1" == "current" ]; then
+    file_name=Current_ObesityDataSet.csv
 
     # downloading the raw dataset using the kaggle's api
     kaggle datasets download -d aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster --unzip
@@ -36,8 +36,8 @@ if [ "$1" == "raw" ]; then
     # renaming the csv file
     mv ObesityDataSet.csv "$file_name"
 
-elif [ "$1" == "current" ]; then
-    file_name=Current_ObesityDataSet.csv
+elif [ "$1" == "raw" ]; then
+    file_name=Original_ObesityDataSet.csv
 
     # downloading the current dataset using the kaggle's api
     kaggle competitions download -c playground-series-s4e2

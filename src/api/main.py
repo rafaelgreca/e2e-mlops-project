@@ -34,14 +34,15 @@ else:
     mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
 download_dataset(
-    name="playground-series-s4e2",
+    name="aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster",
     new_name="Current_ObesityDataSet.csv",
     path=general_settings.DATA_PATH,
     send_to_aws=False,
     file_type="current",
 )
 current_dataset = load_dataset(
-    path=Path.joinpath(general_settings.DATA_PATH, "Current_ObesityDataSet.csv")
+    path=Path.joinpath(general_settings.DATA_PATH, "Current_ObesityDataSet.csv"),
+    from_aws=False,
 )
 
 
@@ -65,20 +66,20 @@ def monitor_model_performance(monitoring: Monitoring = Depends()) -> FileRespons
 
     logger.info(f"Loading current data and selecting the first {window_size} rows.")
     current_data = current_dataset.head(window_size).copy()
-    current_data = current_data.drop(columns=["id", general_settings.TARGET_COLUMN])
+    current_data = current_data.drop(columns=[general_settings.TARGET_COLUMN])
 
     features = data_processing_inference(dataframe=current_data)
     current_data = pd.DataFrame(features, columns=model_settings.FEATURES)
     current_data[general_settings.TARGET_COLUMN] = current_dataset[
         general_settings.TARGET_COLUMN
     ].copy()
-    current_data["id"] = current_dataset["id"].copy()
 
     logger.info("Loading the reference data and filtering its columns.")
     reference_data = load_dataset(
         path=Path.joinpath(
-            general_settings.DATA_PATH, "Preprocessed_ObesityDataSet.csv"
-        )
+            general_settings.DATA_PATH, "Preprocessed_Original_ObesityDataSet.csv"
+        ),
+        from_aws=False,
     )
     reference_data = reference_data[
         model_settings.FEATURES + [general_settings.TARGET_COLUMN]
@@ -127,20 +128,20 @@ def monitor_target_drift(monitoring: Monitoring = Depends()) -> FileResponse:
 
     logger.info(f"Loading current data and selecting the first {window_size} rows.")
     current_data = current_dataset.head(window_size).copy()
-    current_data = current_data.drop(columns=["id", general_settings.TARGET_COLUMN])
+    current_data = current_data.drop(columns=[general_settings.TARGET_COLUMN])
 
     features = data_processing_inference(dataframe=current_data)
     current_data = pd.DataFrame(features, columns=model_settings.FEATURES)
     current_data[general_settings.TARGET_COLUMN] = current_dataset[
         general_settings.TARGET_COLUMN
     ].copy()
-    current_data["id"] = current_dataset["id"].copy()
 
     logger.info("Loading the reference data and filtering its columns.")
     reference_data = load_dataset(
         path=Path.joinpath(
-            general_settings.DATA_PATH, "Preprocessed_ObesityDataSet.csv"
-        )
+            general_settings.DATA_PATH, "Preprocessed_Original_ObesityDataSet.csv"
+        ),
+        from_aws=False,
     )
     reference_data = reference_data[
         model_settings.FEATURES + [general_settings.TARGET_COLUMN]
@@ -188,20 +189,20 @@ def monitor_data_drift(monitoring: Monitoring = Depends()) -> FileResponse:
 
     logger.info(f"Loading current data and selecting the first {window_size} rows.")
     current_data = current_dataset.head(window_size).copy()
-    current_data = current_data.drop(columns=["id", general_settings.TARGET_COLUMN])
+    current_data = current_data.drop(columns=[general_settings.TARGET_COLUMN])
 
     features = data_processing_inference(dataframe=current_data)
     current_data = pd.DataFrame(features, columns=model_settings.FEATURES)
     current_data[general_settings.TARGET_COLUMN] = current_dataset[
         general_settings.TARGET_COLUMN
     ].copy()
-    current_data["id"] = current_dataset["id"].copy()
 
     logger.info("Loading the reference data and filtering its columns.")
     reference_data = load_dataset(
         path=Path.joinpath(
-            general_settings.DATA_PATH, "Preprocessed_ObesityDataSet.csv"
-        )
+            general_settings.DATA_PATH, "Preprocessed_Original_ObesityDataSet.csv"
+        ),
+        from_aws=False,
     )
     reference_data = reference_data[
         model_settings.FEATURES + [general_settings.TARGET_COLUMN]
@@ -250,20 +251,20 @@ def monitor_data_quality(monitoring: Monitoring = Depends()) -> FileResponse:
 
     logger.info(f"Loading current data and selecting the first {window_size} rows.")
     current_data = current_dataset.head(window_size).copy()
-    current_data = current_data.drop(columns=["id", general_settings.TARGET_COLUMN])
+    current_data = current_data.drop(columns=[general_settings.TARGET_COLUMN])
 
     features = data_processing_inference(dataframe=current_data)
     current_data = pd.DataFrame(features, columns=model_settings.FEATURES)
     current_data[general_settings.TARGET_COLUMN] = current_dataset[
         general_settings.TARGET_COLUMN
     ].copy()
-    current_data["id"] = current_dataset["id"].copy()
 
     logger.info("Loading the reference data and filtering its columns.")
     reference_data = load_dataset(
         path=Path.joinpath(
-            general_settings.DATA_PATH, "Preprocessed_ObesityDataSet.csv"
-        )
+            general_settings.DATA_PATH, "Preprocessed_Original_ObesityDataSet.csv"
+        ),
+        from_aws=False,
     )
     reference_data = reference_data[
         model_settings.FEATURES + [general_settings.TARGET_COLUMN]

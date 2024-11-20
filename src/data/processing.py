@@ -2,14 +2,17 @@
 Stores data processing functions, such as for cleaning the data, creating new features,
 enconding categorical columns, and so on.
 """
+import os
 import pathlib
 from typing import List, Dict
 
+import boto3
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelBinarizer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
+from ..config.aws import aws_credentials
 from ..config.model import model_settings
 from ..config.settings import general_settings
 from .utils import load_feature
@@ -33,25 +36,21 @@ def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
     logger.info("Creating a new column for the BMI values from the data samples.")
     dataframe = _create_bmi_feature(dataframe)
 
-    # Creating the BMR feature
-    logger.info("Creating a new column for the BMR values from the data samples.")
-    dataframe = _create_bmr_feature(dataframe)
+    # Creating the PAL feature
+    logger.info("Creating a new column for the PAL values from the data samples.")
+    dataframe = _create_pal_feature(dataframe)
 
-    # Creating the IS feature
-    logger.info("Creating a new column for the IS values from the data samples.")
-    dataframe = _create_is_feature(dataframe)
+    # Creating the BSA feature
+    logger.info("Creating a new column for the BSA values from the data samples.")
+    dataframe = _create_bsa_feature(dataframe)
+
+    # Creating the IBW feature
+    logger.info("Creating a new column for the IBW values from the data samples.")
+    dataframe = _create_ibw_feature(dataframe)
 
     # Feature transformation step)
-    # Dropping unused columns
-    columns_to_drop = [
-        "Height",
-        "Weight",
-    ]
-    logger.info(f"Dropping the columns {columns_to_drop}.")
-    dataframe = _drop_features(dataframe=dataframe, features=columns_to_drop)
-
-    # Transforming the AGE and IS columns into a categorical columns
-    logger.info("Categorizing the numerical columns ('Age' and 'IS').")
+    # Transforming the AGE column in categorical
+    logger.info("Categorizing the numerical columns 'Age'.")
     age_bins = load_feature(
         path=general_settings.ARTIFACTS_PATH, feature_name="qcut_bins"
     )
@@ -94,30 +93,6 @@ def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
     return features
 
 
-def _drop_features(dataframe: pd.DataFrame, features: List) -> pd.DataFrame:
-    """Excludes features from the given dataframe.
-
-    Args:
-        dataframe (pd.DataFrame): the dataframe.
-
-    Returns:
-        pd.DataFrame: the dataframe without the given columns.
-    """
-    return dataframe.drop(columns=features).reset_index(drop=True)
-
-
-def _remove_duplicates(dataframe: pd.DataFrame) -> pd.DataFrame:
-    """Removes duplicates.
-
-    Args:
-        dataframe (pd.DataFrame): the dataframe.
-
-    Returns:
-        pd.DataFrame: the dataframe without duplicated rows.
-    """
-    return dataframe.drop_duplicates(keep="first").reset_index(drop=True)
-
-
 def _change_height_units(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Changes the Height unit to centimeters, so will be easier to calculate
     other features from it.
@@ -129,47 +104,6 @@ def _change_height_units(dataframe: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: the dataframe with the 'height' column transformed.
     """
     dataframe["Height"] *= 100
-    return dataframe
-
-
-def _remove_outliers(dataframe: pd.DataFrame) -> pd.DataFrame:
-    """Removes outliers based on the age.
-
-    Args:
-        dataframe (pd.DataFrame): the dataframe.
-
-    Returns:
-        pd.DataFrame: the dataframe without outliers.
-    """
-    # Calculating the upper and lower limits
-    quartil_1 = dataframe["Age"].quantile(0.25)
-    quartil_3 = dataframe["Age"].quantile(0.75)
-    threshold = 3.5
-    iqr = quartil_3 - quartil_1
-
-    # Removing the data samples that exceeds the upper or lower limits
-    dataframe = dataframe[
-        ~(
-            (dataframe["Age"] >= (quartil_3 + threshold * iqr))
-            | (dataframe["Age"] <= (quartil_1 - threshold * iqr))
-        )
-    ]
-
-    return dataframe
-
-
-def _create_is_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
-    """Calculates the Is Sedentary? (IS) feature.
-
-    Args:
-        dataframe (pd.DataFrame): the dataframe.
-
-    Returns:
-        pd.DataFrame: the dataframe with a new column corresponding to the
-            value of IS for each data.
-    """
-    dataframe["IS"] = dataframe["FAF"] <= 1
-    dataframe["IS"] = dataframe["IS"].astype(int)
     return dataframe
 
 
@@ -187,35 +121,85 @@ def _create_bmi_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
     return dataframe
 
 
-def _create_bmr_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
-    """Calculates the Basal Metabolic Rate (BMR) feature.
+def _create_pal_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Calculates the Physical Activity Level (PAL) feature.
 
     Args:
         dataframe (pd.DataFrame): the dataframe.
 
     Returns:
         pd.DataFrame: the dataframe with a new column corresponding to the
-            value of BMR for each data.
+            value of PAL for each data.
+    """
+    dataframe["PAL"] = dataframe["FAF"] - dataframe["TUE"]
+    return dataframe
+
+
+def _create_bsa_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Calculates the Body Surface Area (BSA) feature.
+
+    Args:
+        dataframe (pd.DataFrame): the dataframe.
+
+    Returns:
+        pd.DataFrame: the dataframe with a new column corresponding to the
+            value of BSA for each data.
     """
 
-    def _calculate_bmr(age: int, gender: str, height: float, weight: float) -> float:
-        """Auxiliary function used to calculate the BMR value.
+    def _calculate_bsa(gender: str, height: float, weight: float) -> float:
+        """
+        Auxiliary function that calculates the BSA based on the Schlich's formula.
 
         Args:
-            age (int): the person's age.
             gender (str): the person's gender.
             height (float): the person's height.
             weight (float): the person's weight.
 
         Returns:
-            float: the BMR value.
+            float: the BSA value for that person.
         """
-        s_value = -161 if gender == "Female" else 5
-        return (10 * weight) + (6.25 * height) - (5 * age) + s_value
+        # Schlich formula
+        if gender == "Female":
+            return 0.000975482 * (weight**0.46) * (height**1.08)
 
-    dataframe["BMR"] = dataframe.apply(
-        lambda x: _calculate_bmr(x["Age"], x["Gender"], x["Height"], x["Weight"]),
-        axis=1,
+        return 0.000579479 * (weight**0.38) * (height**1.24)
+
+    dataframe["BSA"] = dataframe.apply(
+        lambda x: _calculate_bsa(x["Gender"], x["Height"], x["Weight"]), axis=1
+    )
+    return dataframe
+
+
+def _create_ibw_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Calculates the Ideal Body Weight (IBW) feature.
+
+    Args:
+        dataframe (pd.DataFrame): the dataframe.
+
+    Returns:
+        pd.DataFrame: the dataframe with a new column corresponding to the
+            value of IBW for each data.
+    """
+
+    def calculate_ibw(gender: str, height: float) -> float:
+        """
+        Auxiliary function that calculates the IBW based on the B. J. Devine's formula.
+
+        Args:
+            gender (str): the person's gender.
+            height (float): the person's height.
+
+        Returns:
+            float: the IBW value for that person.
+        """
+        # B. J. Devine formula
+        if gender == "Female":
+            return 45.5 + 0.9 * (height - 152)
+
+        return 50 + 0.9 * (height - 152)
+
+    dataframe["IBW"] = dataframe.apply(
+        lambda x: calculate_ibw(x["Gender"], x["Height"]), axis=1
     )
     return dataframe
 
@@ -236,7 +220,6 @@ def _categorize_numerical_columns(
         x=dataframe["Age"], bins=bins, labels=["q1", "q2", "q3", "q4"]
     )
     dataframe["Age"] = dataframe["Age"].astype("object")
-    dataframe["IS"] = dataframe["IS"].astype("object")
     return dataframe
 
 
@@ -251,15 +234,17 @@ def _transform_numerical_columns(
             used to avoid calculate the log of 0. Defailts to 1e-10.
 
     Returns:
-        pd.DataFrame: the dataframe with all numerical columns transformed.
+        transformed_dataframe (pd.DataFrame): the dataframe with all numerical columns transformed.
     """
     numerical_columns = dataframe.select_dtypes(exclude="object").columns.tolist()
     logger.info(f"Applying Log Transformation to the {numerical_columns} columns.")
+    transformed_dataframe = dataframe.copy()
 
     for column in numerical_columns:
-        dataframe[column] = np.log1p(dataframe[column].values + epsilon)
+        if column != "PAL":
+            transformed_dataframe[column] = np.log(dataframe[column].values + epsilon)
 
-    return dataframe
+    return transformed_dataframe
 
 
 def _scale_numerical_columns(
@@ -320,30 +305,46 @@ def _encode_categorical_columns(
     return new_dataframe
 
 
-def _encode_labels_array(
-    array: np.ndarray,
-    encoder: LabelBinarizer,
-) -> pd.DataFrame:
-    """Encodes an array containing the labels (e.g., transform strings to LabelBinarizer).
+def _drop_features(dataframe: pd.DataFrame, features: List) -> pd.DataFrame:
+    """Excludes features from the given dataframe.
 
     Args:
-        array (np.ndarray): the labels array.
-        encoder (LabelBinarizer): the LabelBinarizer instance.
+        dataframe (pd.DataFrame): the dataframe.
 
     Returns:
-        pd.DataFrame: the encoded array.
+        pd.DataFrame: the dataframe without the given columns.
     """
-    return encoder.transform(array.reshape(-1, 1))
+    return dataframe.drop(columns=features).reset_index(drop=True)
 
 
-def load_dataset(path: pathlib.Path) -> pd.DataFrame:
+def load_dataset(path: pathlib.Path, from_aws: bool) -> pd.DataFrame:
     """Loads a dataset from a specific path.
 
     Args:
         path (pathlib.Path): the path where the dataset is located.
+        from_aws (bool): whether the dataset is located in an AWS S3 bucket.
 
     Returns:
         pd.DataFrame: the dataframe.
     """
     logger.info(f"Loading dataset from path {path}.")
-    return pd.read_csv(path, sep=",")
+
+    if not from_aws:
+        return pd.read_csv(path, sep=",")
+
+    # configuring AWS credentials
+    os.environ["AWS_ACCESS_KEY_ID"] = aws_credentials.AWS_ACCESS_KEY
+    os.environ["AWS_SECRET_ACCESS_KEY"] = aws_credentials.AWS_SECRET_KEY
+
+    # downloading dataset
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=aws_credentials.AWS_ACCESS_KEY,
+        aws_secret_access_key=aws_credentials.AWS_SECRET_KEY,
+    )
+
+    upload_path = pathlib.Path.joinpath(general_settings.DATA_PATH, path.split("/")[-1])
+
+    s3.download_file(path, upload_path)
+
+    return load_dataset(path=upload_path, from_aws=False)

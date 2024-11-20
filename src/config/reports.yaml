@@ -1,0 +1,5 @@
+REPORTS_PATH: '/media/greca/HD/GitHub/e2e-mlops-project/reports/'
+TARGET_DRIFT_REPORT_NAME: 'target_drift.html'
+DATA_DRIFT_REPORT_NAME: 'data_drift.html'
+DATA_QUALITY_REPORT_NAME: 'data_quality.html'
+MODEL_PERFORMANCE_REPORT_NAME: 'model_performance.html'
