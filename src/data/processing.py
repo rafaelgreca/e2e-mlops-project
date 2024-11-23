@@ -48,9 +48,13 @@ def data_processing_inference(dataframe: pd.DataFrame) -> np.ndarray:
     logger.info("Creating a new column for the IBW values from the data samples.")
     dataframe = _create_ibw_feature(dataframe)
 
+    # Creating the EVEMM feature
+    logger.info("Creating a new column for the EVEMM values from the data samples.")
+    dataframe = _create_evemm_feature(dataframe)
+
     # Feature transformation step)
-    # Transforming the AGE column in categorical
-    logger.info("Categorizing the numerical columns 'Age'.")
+    # Transforming the AGE and EVEMM columns in categorical
+    logger.info("Categorizing the numerical columns 'Age' and 'EVEMM'.")
     age_bins = load_feature(
         path=general_settings.ARTIFACTS_PATH, feature_name="qcut_bins"
     )
@@ -132,6 +136,21 @@ def _create_pal_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
             value of PAL for each data.
     """
     dataframe["PAL"] = dataframe["FAF"] - dataframe["TUE"]
+    return dataframe
+
+
+def _create_evemm_feature(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Calculates the Eat Vegetables Every Main Meal (EVEMM) feature.
+
+    Args:
+        dataframe (pd.DataFrame): the dataframe.
+
+    Returns:
+        pd.DataFrame: the dataframe with a new column corresponding to the
+            value of EVEMM for each data.
+    """
+    dataframe["EVEMM"] = dataframe["FCVC"] >= dataframe["NCP"]
+    dataframe["EVEMM"] = dataframe["EVEMM"].astype(int)
     return dataframe
 
 
@@ -220,6 +239,7 @@ def _categorize_numerical_columns(
         x=dataframe["Age"], bins=bins, labels=["q1", "q2", "q3", "q4"]
     )
     dataframe["Age"] = dataframe["Age"].astype("object")
+    dataframe["EVEMM"] = dataframe["EVEMM"].astype("object")
     return dataframe
 
 

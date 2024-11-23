@@ -17,6 +17,7 @@ from src.data.processing import (
     _change_height_units,
     _create_bmi_feature,
     _create_bsa_feature,
+    _create_evemm_feature,
     _create_ibw_feature,
     _create_pal_feature,
     _drop_features,
@@ -25,7 +26,7 @@ from src.data.processing import (
     _transform_numerical_columns,
 )
 from src.data.utils import download_dataset, load_feature
-from . import dataset
+from .. import dataset
 
 
 def test_change_height_units() -> None:
@@ -59,6 +60,22 @@ def test_create_bmi_feature():
     assert "BMI" in _dataset.columns.tolist()
     assert ptypes.is_numeric_dtype(_dataset["BMI"])
     assert isinstance(_dataset["BMI"].dtype, type(np.dtype("float64")))
+
+
+def test_create_evemm_feature():
+    """
+    Unit case to test the function that creates the Eat Vegetables in Main
+    Meals (EVEMM) feature.
+    """
+    _dataset = dataset.copy()
+
+    assert "EVEMM" not in _dataset.columns.tolist()
+
+    _dataset = _create_evemm_feature(dataframe=_dataset)
+
+    assert "EVEMM" in _dataset.columns.tolist()
+    assert ptypes.is_numeric_dtype(_dataset["EVEMM"])
+    assert isinstance(_dataset["EVEMM"].dtype, type(np.dtype("int64")))
 
 
 def test_create_bsa_feature():
@@ -115,8 +132,10 @@ def test_categorize_numerical_columns():
         path=general_settings.ARTIFACTS_PATH, feature_name="qcut_bins"
     )
     _dataset = dataset.copy()
+    _dataset = _create_evemm_feature(dataframe=_dataset)
 
     assert isinstance(_dataset["Age"].dtype, type(np.dtype("float64")))
+    assert isinstance(_dataset["EVEMM"].dtype, type(np.dtype("int64")))
 
     _dataset = _categorize_numerical_columns(
         dataframe=_dataset,
@@ -124,6 +143,7 @@ def test_categorize_numerical_columns():
     )
 
     assert isinstance(_dataset["Age"].dtype, type(np.dtype("object")))
+    assert isinstance(_dataset["EVEMM"].dtype, type(np.dtype("object")))
 
 
 def test_scale_numerical_columns():

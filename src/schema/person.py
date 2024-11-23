@@ -46,6 +46,8 @@ class Person(BaseModel):
     NCP - The person's number of main meals (NCP).
     CH20 - The person's consumption of water daily (CH2O).
     TUE - Time using technology devices (TUE).
+    CAEC - The person's consumption of food between meals (CAEC).
+    SCC - Whether the person monitor they calories consumption (SCC).
     """
 
     Age: float = Field(ge=0, le=100)
@@ -63,6 +65,8 @@ class Person(BaseModel):
     CH2O: float = Field(ge=1, le=3)
     FAF: float = Field(ge=0, le=3)
     TUE: int = Field(ge=0, le=2)
+    CAEC: str = Literal["Frequently", "Sometimes", "Always", "no"]
+    SCC: str = Literal["yes", "no"]
 
     model_config = {
         "json_schema_extra": {
@@ -81,6 +85,8 @@ class Person(BaseModel):
                     "CH2O": 2.763573,
                     "FAF": 0,
                     "TUE": 1,
+                    "CAEC": "Sometimes",
+                    "SCC": "no",
                 }
             ]
         }

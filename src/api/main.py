@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Dict
 
 import pandas as pd
-import mlflow
 from fastapi import FastAPI, Depends
 from fastapi.responses import FileResponse
 from loguru import logger
@@ -17,33 +16,15 @@ from .utils import (
     build_target_drift_report,
     get_column_mapping,
 )
-from ..data.processing import data_processing_inference, load_dataset
-from ..data.utils import download_dataset
+from ..data.processing import data_processing_inference
 from ..config.model import model_settings
-from ..config.aws import aws_credentials
+from ..config.reports import report_settings
 from ..config.settings import general_settings
-from ..model.inference import ModelServe
 from ..schema.person import Person
 from ..schema.monitoring import Monitoring
+from . import current_dataset, loaded_model, reference_data
 
 app = FastAPI()
-
-if aws_credentials.EC2 != "YOUR_EC2_INSTANCE_URL":
-    mlflow.set_tracking_uri(f"http://{aws_credentials.EC2}:5000")
-else:
-    mlflow.set_tracking_uri("http://127.0.0.1:5000")
-
-download_dataset(
-    name="aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster",
-    new_name="Current_ObesityDataSet.csv",
-    path=general_settings.DATA_PATH,
-    send_to_aws=False,
-    file_type="current",
-)
-current_dataset = load_dataset(
-    path=Path.joinpath(general_settings.DATA_PATH, "Current_ObesityDataSet.csv"),
-    from_aws=False,
-)
 
 
 @app.get("/monitor-model")
@@ -56,14 +37,6 @@ def monitor_model_performance(monitoring: Monitoring = Depends()) -> FileRespons
     """
     window_size = monitoring.window_size
 
-    logger.info(f"Loading {model_settings.MODEL_NAME} pre-trained model.")
-    loaded_model = ModelServe(
-        model_name=model_settings.MODEL_NAME,
-        model_flavor=model_settings.MODEL_FLAVOR,
-        model_version=model_settings.VERSION,
-    )
-    loaded_model.load()
-
     logger.info(f"Loading current data and selecting the first {window_size} rows.")
     current_data = current_dataset.head(window_size).copy()
     current_data = current_data.drop(columns=[general_settings.TARGET_COLUMN])
@@ -73,20 +46,6 @@ def monitor_model_performance(monitoring: Monitoring = Depends()) -> FileRespons
     current_data[general_settings.TARGET_COLUMN] = current_dataset[
         general_settings.TARGET_COLUMN
     ].copy()
-
-    logger.info("Loading the reference data and filtering its columns.")
-    reference_data = load_dataset(
-        path=Path.joinpath(
-            general_settings.DATA_PATH, "Preprocessed_Original_ObesityDataSet.csv"
-        ),
-        from_aws=False,
-    )
-    reference_data = reference_data[
-        model_settings.FEATURES + [general_settings.TARGET_COLUMN]
-    ]
-    reference_data["prediction"] = loaded_model.predict(
-        reference_data[model_settings.FEATURES].values
-    )
 
     current_data["prediction"] = loaded_model.predict(features)
 
@@ -102,6 +61,9 @@ def monitor_model_performance(monitoring: Monitoring = Depends()) -> FileRespons
         current_data=current_data,
         reference_data=reference_data,
         column_mapping=column_mapping,
+        report_path=Path.joinpath(
+            report_settings.REPORTS_PATH, report_settings.MODEL_PERFORMANCE_REPORT_NAME
+        ),
     )
 
     logger.info(f"Returning report as HTML file in location {report_path}.")
@@ -118,14 +80,6 @@ def monitor_target_drift(monitoring: Monitoring = Depends()) -> FileResponse:
     """
     window_size = monitoring.window_size
 
-    logger.info(f"Loading {model_settings.MODEL_NAME} pre-trained model.")
-    loaded_model = ModelServe(
-        model_name=model_settings.MODEL_NAME,
-        model_flavor=model_settings.MODEL_FLAVOR,
-        model_version=model_settings.VERSION,
-    )
-    loaded_model.load()
-
     logger.info(f"Loading current data and selecting the first {window_size} rows.")
     current_data = current_dataset.head(window_size).copy()
     current_data = current_data.drop(columns=[general_settings.TARGET_COLUMN])
@@ -135,20 +89,6 @@ def monitor_target_drift(monitoring: Monitoring = Depends()) -> FileResponse:
     current_data[general_settings.TARGET_COLUMN] = current_dataset[
         general_settings.TARGET_COLUMN
     ].copy()
-
-    logger.info("Loading the reference data and filtering its columns.")
-    reference_data = load_dataset(
-        path=Path.joinpath(
-            general_settings.DATA_PATH, "Preprocessed_Original_ObesityDataSet.csv"
-        ),
-        from_aws=False,
-    )
-    reference_data = reference_data[
-        model_settings.FEATURES + [general_settings.TARGET_COLUMN]
-    ]
-    reference_data["prediction"] = loaded_model.predict(
-        reference_data[model_settings.FEATURES].values
-    )
 
     current_data["prediction"] = loaded_model.predict(features)
 
@@ -164,6 +104,9 @@ def monitor_target_drift(monitoring: Monitoring = Depends()) -> FileResponse:
         current_data=current_data,
         reference_data=reference_data,
         column_mapping=column_mapping,
+        report_path=Path.joinpath(
+            report_settings.REPORTS_PATH, report_settings.TARGET_DRIFT_REPORT_NAME
+        ),
     )
 
     logger.info(f"Returning report as HTML file in location {report_path}.")
@@ -179,13 +122,6 @@ def monitor_data_drift(monitoring: Monitoring = Depends()) -> FileResponse:
         FileResponse: the report HTML file.
     """
     window_size = monitoring.window_size
-    logger.info(f"Loading {model_settings.MODEL_NAME} pre-trained model.")
-    loaded_model = ModelServe(
-        model_name=model_settings.MODEL_NAME,
-        model_flavor=model_settings.MODEL_FLAVOR,
-        model_version=model_settings.VERSION,
-    )
-    loaded_model.load()
 
     logger.info(f"Loading current data and selecting the first {window_size} rows.")
     current_data = current_dataset.head(window_size).copy()
@@ -196,20 +132,6 @@ def monitor_data_drift(monitoring: Monitoring = Depends()) -> FileResponse:
     current_data[general_settings.TARGET_COLUMN] = current_dataset[
         general_settings.TARGET_COLUMN
     ].copy()
-
-    logger.info("Loading the reference data and filtering its columns.")
-    reference_data = load_dataset(
-        path=Path.joinpath(
-            general_settings.DATA_PATH, "Preprocessed_Original_ObesityDataSet.csv"
-        ),
-        from_aws=False,
-    )
-    reference_data = reference_data[
-        model_settings.FEATURES + [general_settings.TARGET_COLUMN]
-    ]
-    reference_data["prediction"] = loaded_model.predict(
-        reference_data[model_settings.FEATURES].values
-    )
 
     current_data["prediction"] = loaded_model.predict(features)
 
@@ -225,6 +147,9 @@ def monitor_data_drift(monitoring: Monitoring = Depends()) -> FileResponse:
         current_data=current_data,
         reference_data=reference_data,
         column_mapping=column_mapping,
+        report_path=Path.joinpath(
+            report_settings.REPORTS_PATH, report_settings.DATA_DRIFT_REPORT_NAME
+        ),
     )
 
     logger.info(f"Returning report as HTML file in location {report_path}.")
@@ -241,14 +166,6 @@ def monitor_data_quality(monitoring: Monitoring = Depends()) -> FileResponse:
     """
     window_size = monitoring.window_size
 
-    logger.info(f"Loading {model_settings.MODEL_NAME} pre-trained model.")
-    loaded_model = ModelServe(
-        model_name=model_settings.MODEL_NAME,
-        model_flavor=model_settings.MODEL_FLAVOR,
-        model_version=model_settings.VERSION,
-    )
-    loaded_model.load()
-
     logger.info(f"Loading current data and selecting the first {window_size} rows.")
     current_data = current_dataset.head(window_size).copy()
     current_data = current_data.drop(columns=[general_settings.TARGET_COLUMN])
@@ -258,20 +175,6 @@ def monitor_data_quality(monitoring: Monitoring = Depends()) -> FileResponse:
     current_data[general_settings.TARGET_COLUMN] = current_dataset[
         general_settings.TARGET_COLUMN
     ].copy()
-
-    logger.info("Loading the reference data and filtering its columns.")
-    reference_data = load_dataset(
-        path=Path.joinpath(
-            general_settings.DATA_PATH, "Preprocessed_Original_ObesityDataSet.csv"
-        ),
-        from_aws=False,
-    )
-    reference_data = reference_data[
-        model_settings.FEATURES + [general_settings.TARGET_COLUMN]
-    ]
-    reference_data["prediction"] = loaded_model.predict(
-        reference_data[model_settings.FEATURES].values
-    )
 
     current_data["prediction"] = loaded_model.predict(features)
 
@@ -287,6 +190,9 @@ def monitor_data_quality(monitoring: Monitoring = Depends()) -> FileResponse:
         current_data=current_data,
         reference_data=reference_data,
         column_mapping=column_mapping,
+        report_path=Path.joinpath(
+            report_settings.REPORTS_PATH, report_settings.DATA_QUALITY_REPORT_NAME
+        ),
     )
 
     logger.info(f"Returning report as HTML file in location {report_path}.")
@@ -324,13 +230,6 @@ async def prediction(person: Person) -> Dict:
     Returns:
         Dict: the predictions.
     """
-    loaded_model = ModelServe(
-        model_name=model_settings.MODEL_NAME,
-        model_flavor=model_settings.MODEL_FLAVOR,
-        model_version=model_settings.VERSION,
-    )
-    loaded_model.load()
-
     data = pd.DataFrame.from_dict([person.model_dump()])
     features = data_processing_inference(data)
 

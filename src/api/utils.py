@@ -2,6 +2,7 @@
 Auxiliary functions used to generate monitoring reports.
 """
 from typing import List, Text
+from pathlib import Path
 
 import pandas as pd
 import pandas.api.types as ptypes
@@ -65,6 +66,7 @@ def build_model_performance_report(
     current_data: pd.DataFrame,
     reference_data: pd.DataFrame,
     column_mapping: ColumnMapping,
+    report_path: Path,
 ) -> Text:
     """
     Builds a Model Performance Report.
@@ -74,6 +76,7 @@ def build_model_performance_report(
         reference_data (pd.DataFrame): the reference data (the data used
             to train the model).
         column_mapping (ColumnMapping): the column mapping.
+        report_path (Path): where the reported will be saved.
 
     Returns:
         Text: the reported path.
@@ -91,9 +94,8 @@ def build_model_performance_report(
         current_data=current_data,
         column_mapping=column_mapping,
     )
-    report_path = "../results/model_performance.html"
-    model_performance_report.save_html(report_path)
 
+    model_performance_report.save_html(str(report_path))
     return report_path
 
 
@@ -101,6 +103,7 @@ def build_target_drift_report(
     current_data: pd.DataFrame,
     reference_data: pd.DataFrame,
     column_mapping: ColumnMapping,
+    report_path: Path,
 ) -> Text:
     """
     Builds a Target Drift Report.
@@ -110,6 +113,7 @@ def build_target_drift_report(
         reference_data (pd.DataFrame): the reference data (the data used
             to train the model).
         column_mapping (ColumnMapping): the column mapping.
+        report_path (Path): where the reported will be saved.
 
     Returns:
         Text: the reported path.
@@ -121,9 +125,7 @@ def build_target_drift_report(
         column_mapping=column_mapping,
     )
 
-    report_path = "../results/target_drift.html"
-    target_drift_report.save_html(report_path)
-
+    target_drift_report.save_html(str(report_path))
     return report_path
 
 
@@ -131,6 +133,7 @@ def build_data_drift_report(
     current_data: pd.DataFrame,
     reference_data: pd.DataFrame,
     column_mapping: ColumnMapping,
+    report_path: Path,
 ) -> Text:
     """
     Builds a Data Drift Report.
@@ -140,6 +143,7 @@ def build_data_drift_report(
         reference_data (pd.DataFrame): the reference data (the data used
             to train the model).
         column_mapping (ColumnMapping): the column mapping.
+        report_path (Path): where the reported will be saved.
 
     Returns:
         Text: the reported path.
@@ -151,9 +155,7 @@ def build_data_drift_report(
         column_mapping=column_mapping,
     )
 
-    report_path = "../results/data_drift.html"
-    data_drift_report.save_html(report_path)
-
+    data_drift_report.save_html(str(report_path))
     return report_path
 
 
@@ -161,6 +163,7 @@ def build_data_quality_report(
     current_data: pd.DataFrame,
     reference_data: pd.DataFrame,
     column_mapping: ColumnMapping,
+    report_path: Path,
 ) -> Text:
     """
     Builds a Data Quality Report.
@@ -170,6 +173,7 @@ def build_data_quality_report(
         reference_data (pd.DataFrame): the reference data (the data used
             to train the model).
         column_mapping (ColumnMapping): the column mapping.
+        report_path (Path): where the reported will be saved.
 
     Returns:
         Text: the reported path.
@@ -188,7 +192,5 @@ def build_data_quality_report(
         column_mapping=column_mapping,
     )
 
-    report_path = "../results/data_quality.html"
-    data_quality_report.save_html(report_path)
-
+    data_quality_report.save_html(str(report_path))
     return report_path

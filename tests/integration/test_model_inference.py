@@ -7,7 +7,7 @@ import pandas as pd
 from src.config.model import model_settings
 from src.config.settings import general_settings
 from src.data.processing import data_processing_inference
-from . import dataset, loaded_model
+from .. import dataset, loaded_model
 
 
 def test_model_inference_pipeline() -> None:

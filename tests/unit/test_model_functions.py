@@ -10,7 +10,7 @@ from lightgbm import LGBMClassifier
 from src.config.model import model_settings
 from src.data.processing import data_processing_inference
 from src.model.inference import ModelServe
-from . import loaded_model
+from .. import loaded_model
 
 
 def test_load_model() -> None:
@@ -43,6 +43,8 @@ def test_prediction() -> None:
         "CH2O": 2.763573,
         "FAF": 0,
         "TUE": 1,
+        "CAEC": "Sometimes",
+        "SCC": "no",
     }
     correct_prediction = "Overweight_Level_II"
 

@@ -32,7 +32,7 @@ def test_model_performance_report_endpoint() -> None:
     Unit case to test the API's model performance report endpoint.
     """
     window_size = 300
-    path = "results/model_performance.html"
+    path = "reports/model_performance.html"
     headers = {"Accept-Encoding": "identity"}
 
     response = requests.get(
@@ -51,7 +51,7 @@ def test_target_drift_report_endpoint() -> None:
     Unit case to test the API's target drift report endpoint.
     """
     window_size = 300
-    path = "results/target_drift.html"
+    path = "reports/target_drift.html"
     headers = {"Accept-Encoding": "identity"}
 
     response = requests.get(
@@ -70,7 +70,7 @@ def test_data_drift_report_endpoint() -> None:
     Unit case to test the API's data drift report endpoint.
     """
     window_size = 300
-    path = "results/data_drift.html"
+    path = "reports/data_drift.html"
     headers = {"Accept-Encoding": "identity"}
 
     response = requests.get(
@@ -89,7 +89,7 @@ def test_data_quality_report_endpoint() -> None:
     Unit case to test the API's data quality report endpoint.
     """
     window_size = 300
-    path = "results/data_quality.html"
+    path = "reports/data_quality.html"
     headers = {"Accept-Encoding": "identity"}
 
     response = requests.get(
@@ -124,6 +124,8 @@ def test_inference_endpoint() -> None:
         "CH2O": 2.763573,
         "FAF": 0,
         "TUE": 1,
+        "CAEC": "Sometimes",
+        "SCC": "no",
     }
 
     response = requests.post("http://127.0.0.1:8000/predict", json=data, timeout=100)
