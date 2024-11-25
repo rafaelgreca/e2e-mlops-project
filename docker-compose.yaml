@@ -1,38 +1,39 @@
 version: '3'
 
-# creating the default network
-networks:
-  default:
-    driver: bridge
-
 services:
   # creating the development environment service (which is running the jupyter notebook)
-  dev-notebook:
+  dev:
     image: e2e-dev:latest
+
     build:
       context: ./notebooks
-      dockerfile: ./dev_Dockerfile
+      dockerfile: ./Dockerfile.dev
 
-    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]
 
-    # exposing the port that will be used by MLFlow and Jupyter Notebook
+    # exposing the port that will be used by Jupyter Notebook
     ports:
       - "8888:8888"
 
     # setting external volumes
     volumes:
-      - ./credentials.yaml:/e2e-project/credentials.yaml
+      - ./src/config/:/e2e-project/src/config/
       - ./models:/e2e-project/models/
       - ./data:/e2e-project/data/
 
-  dev-mlflow:
+    # setting the network
+    networks:
+      - custom_network
+
+  mlflow:
     image: e2e-dev:latest
+
     build:
       context: .
-      dockerfile: ./notebooks/dev_Dockerfile
+      dockerfile: ./notebooks/Dockerfile.dev
 
     depends_on:
-      - dev-notebook
+      - dev
 
     command: ["mlflow", "server", "-h", "0.0.0.0", "-p", "5000"]
 
@@ -42,6 +43,45 @@ services:
 
     # setting external volumes
     volumes:
-      - ./credentials.yaml:/e2e-project/credentials.yaml
+      - ./src/config/:/e2e-project/src/config/
       - ./models:/e2e-project/models/
       - ./data:/e2e-project/data/
+
+    # setting the network
+    networks:
+      - custom_network
+
+  prod:
+    image: e2e-prod:latest
+
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+
+    working_dir: /e2e-mlops-project/src/
+
+    depends_on:
+      - mlflow
+
+    command: ["fastapi", "run", "api/main.py", "--host", "0.0.0.0", "--port", "8000"]
+
+    # exposing the port that will be used by MLFlow and Jupyter Notebook
+    ports:
+      - "8000:8000"
+
+    # setting external volumes
+    volumes:
+      - ./models:/e2e-mlops-project/models/
+      - ./data:/e2e-mlops-project/data/
+      - ./tests:/e2e-mlops-project/tests/
+      - ./reports:/e2e-mlops-project/reports/
+      - ./notebooks:/e2e-mlops-project/notebooks/
+
+    # setting the network
+    networks:
+      - custom_network
+
+# creating the default network
+networks:
+  custom_network:
+    driver: bridge
