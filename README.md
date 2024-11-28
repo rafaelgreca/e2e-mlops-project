@@ -8,7 +8,7 @@
       <a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#structure">Structure</a></li>
-        <li><a href="#workflow">Workflow</a></li>
+        <li><a href="#pipelines">Pipelines</a></li>
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
@@ -19,7 +19,7 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li><a href="#workflow">Workflow</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -162,9 +162,19 @@ In-depth explanation of the files within the `src` folder:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Workflow
+### Pipelines
 
-PUT THE WORFLOW PIPELINE HERE AND AN IN-DEPTH EXPLANATION.
+#### Research Environment
+
+![Research Workflow](images/research-workflow.png)
+
+![Model Training Pipeline](images/model-training-pipeline.png)
+
+#### Production Environment
+
+![Production Workflow](images/production-workflow.png)
+
+![API Design](images/api_design.png)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -263,10 +273,24 @@ pip install requirements.txt
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- USAGE EXAMPLES -->
-## Usage
+<!-- WORKFLOW -->
+## Workflow
 
-PUT SOME IMAGES HERE!
+1. (OPTIONAL) Use the research environment to run the **Exploratory Data Analysis (EDA) notebook**. This notebook uses Seaborn and Matplotlib to better understand the original, raw dataset that will be used to train and assess the developed machine learning model (in this case, a LightGBM classifier).
+
+2. Use the research environment to run the **Data Processing notebook**. Applying feature engineering, feature encoding, feature scaling, and separating the data into training and validation is the goal of this notebook. Pickle, Pandas, and Numpy are then used to save the artifacts and the cleaned features.
+
+3. Use the research environment to run the **Model Experimentations notebook**. With feature selection and hyperparameter tuning using MLflow and Optuna, this notebook attempts to apply model experiments using a few different Machine Learning models (Random Forest, Decision Tree, XGBoost, LightGBM, and CatBoost). The MLflow model registry is used to store the best tuned models and baselines (using the model's default parameters). For further information, see the `README` file located within the `model` folder. The experiments (feature selection and hyperparameter tuning) and their best model (one for each experiment) saved locally in MLflow are both displayed in the figures below.
+
+![MLflow experiments](images/mlflow-experiments.png)
+
+![MLflow model registry](images/mlflow-model-registry.png)
+
+4. Use the production environment to run the **API**. For further information, see the `README` file located inside the `src` folder. An illustration of the API operating locally can be found in the figure below.
+
+![API](images/api.png)
+
+P.S. The root folder should be used to execute all commands from the research environment. The `src` folder is where the API should be executed.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
