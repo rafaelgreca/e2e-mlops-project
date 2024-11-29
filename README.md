@@ -15,11 +15,11 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
+        <li><a href="#prerequisites">Prerequisites</a></li>
       </ul>
     </li>
-    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -164,15 +164,35 @@ In-depth explanation of the files within the `src` folder:
 
 ### Pipelines
 
+The research and production environments served as the foundation for this project. In addition to trying to improve the data quality by developing, designing, and testing new features and data cleaning procedures, the research environment seeks to create a space designed by Data Scientists to test, train, evaluate, and draw new experiments for new Machine Learning model candidates. This environment is entirely dependent on Jupyter Notebooks, which are not yet ready for production because they are very difficult to automate due to their manual dependency. Following the completion of all experiments in the research environment and the selection of the model to be used, the production environment was intended to be the next stage. In order to be more production-ready, the entire workflow—which only includes the steps that were used in the research environment—will be optimized and structured in this way to get around the drawbacks of the research environment, like its manual dependence and poor optimization, while also deploying the solution to the end-user.
+
 #### Research Environment
+
+As briefly introducted earlier, the research environment was designed to mimic a real-world scenario where Data Scientists conduct experiments for different steps throughout the Machine Learning Lifecycle workflow (e.g., model training and evaluation, data cleaning, feature construction and selection, and so on) using Jupyter Notebooks. The general overview of the research's workflow can be seen in the figure below.
 
 ![Research Workflow](images/research-workflow.png)
 
+First, a deep learning model trained on the [Obesity or CVD risk](https://www.kaggle.com/datasets/aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster) dataset was used to create the [Multi-Class Prediction of Obesity Risk](https://www.kaggle.com/competitions/playground-series-s4e2) dataset, which was ingested using Kaggle's API and used to train and validate the models developed throught the pipeline. It is important to note that throughout the entire process, all datasets (raw and cleaned) and artifacts (such as scalers and encoders) were kept in an AWS S3 bucket (or locally within the `data` folder). In order to better understand the data and its characteristics and to learn what can be done in the next steps to improve the quality of the data, an Exploratory Data Analysis (EDA) is performed using the raw data.
+
+Following the EDA step, a number of data and feature transformations are carried out, including data cleaning (deleting duplicate rows and dropping features that aren't useful), log transformation, height unit to centimeter conversion, numerical column to categorical transformation, standard scale application to the numerical columns, and one hot encoder to the target and categorical columns. Body Mass Index (BMI), Physical Activity Level (PAL), Body Surface Area (BSA), Ideal Body Weight (IBW), the difference between IBW and actual weight (DIFF_IBW), Basal Metabolic Rate (BMR), Total Daily Energy Expenditure (TDEE), Sufficient Water Consumption (SWC), Is Sedentary? (IS), Healthy Habits? (HH), Ideal Number of Main Meals? (INMM), and, lastly, Eat Vegetables Every Main Meal? (EVEMM) are some of the new features that are then manually constructed in the feature construction step.
+
+Given that a range was established to retain at least 10% of the initial number of features and a maximum of 40%, experiments were created using MLflow and Sequential Feature Selector (SFS) to save the best feature combination. It's important to note that a few machine learning models, such as Decision Tree (DT), XGBoost, Random Forest (RF), LightGBM, and CatBoost, were used with their default parameters in order to assess that feature selection technique. Ultimately, each model has its own best feature combination, and the top model for each type (e.g., one for DT, one for RF, one for XGBoost, and so on) that produced the best outcome are kept in MLflow's model registry. The best models for each kind of model are then used in the hyperparameter tuning experiment, and they are also kept in MLflow's model registry. The figure below illustrates the model training pipeline used for both experiments (feature selection and model tuning) conducted using AWS EC2 (or locally), which divides the raw, preprocessed data into two sets: one for model training and another for performance validation.
+
 ![Model Training Pipeline](images/model-training-pipeline.png)
+
+It's important to emphasize that there is much space for improvement because the project's objective was not to place a strong emphasis on the research phase, but rather in the MLOps step (production environment).
 
 #### Production Environment
 
+Following the research phase, a production-ready solution is created using the best model, its required artifacts (such as scalers and encoders), the chosen features, and all necessary data processing steps. Software Engineering (SWE) best practices for code quality are used to create a new pipeline using the existing code developed in the research environment (note: we are not using all the features, so we are not using every step; we are not selecting features or training a new model).
+
+The figure below shows the workflow for the production. The pipeline starts by loading the [Obesity or CVD risk](https://www.kaggle.com/datasets/aravindpcoder/obesity-or-cvd-risk-classifyregressorcluster) dataset, which we refer to as the "current" dataset, and the artifacts acquired during the model training in the research environment. In order to track target and data drift as well as the decline in the model's performance on the test set, this dataset was selected because it contains a variety of distributions for every feature that is available. The current data undergoes the same data transformation procedures as the training data. This also holds true for the feature selection and feature scaling processes (using the same artifacts). The selected model is loaded from the MLflow's model registry following preprocessing of the current data.
+
+When everything is prepared, they can be used in the deployment process via an API made with FastAPI, or in the Continuous Integration (CI) and Continuous Delivery (CD) stages. During the CI/CD phase, Pylint will be used to test the code quality and unit and integration tests will be used to evaluate everything we have built. To ensure that everything is functioning and the model is attaining the performance indicated in MLflow, the trained model will also be evaluated and tested.
+
 ![Production Workflow](images/production-workflow.png)
+
+The figure below shows the design of the API if you decide to use it instead. Continuous Monitoring (CM) features, like detecting target or data drift, determining whether the model's performance is declining, and assessing the quality of the data, were built into the API. Generally speaking, the backend of the API will obtain the reference data (the data used to train the model) and the current data, compare the model's predictions on both, and compare the two datasets. Evidently AI is used to generate the monitoring reports, which are subsequently stored locally or in an AWS S3 bucket.
 
 ![API Design](images/api_design.png)
 
@@ -207,6 +227,17 @@ In-depth explanation of the files within the `src` folder:
 This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
 
+### Installation
+
+To install this repository, first, you should clone the repository to the directory of your choice using the following command:
+
+```bash
+git clone https://github.com/rafaelgreca/e2e-mlops-project.git
+cd e2e-mlops-project
+```
+
+P.S.: if you are interested in modifying the code as you desire, it's better to fork this repository and then clone your repository or create a new repository using this repository as a template.
+
 ### Prerequisites
 
 1. You must first have an AWS account (OPTIONAL) and a set of credentials for Kaggle's API before you can run the code.
@@ -229,83 +260,69 @@ pip install pre-commit
 pre-commit install
 ```
 
-### Installation
-
-#### (RECOMMENDED) Using Docker-compose
-
-1. To create and launch the research/dev and production environments, execute the following command:
-
-```bash
-docker-compose up -d
-```
-
-You should be able to see both the research environment (on port 8888) and MLflow (on port 5000). The figures below show an example of both environments running locally.
-
-![MLflow screenshot](images/mlflow-screenshot.png)
-
-![Notebook screenshot](images/notebooks-screenshot.png)
-
-#### Using Conda Virtual Environments
-
-1. Create a virtual environment for the research/dev environment using the following command:
-
-```bash
-conda create --name e2e-dev python=3.10 && conda activate e2e-dev
-```
-
-Then install the dependencies using the following command:
-
-```bash
-pip install notebooks/requirements_dev.txt
-```
-
-2. Create a virtual environment for the production environment using the following command:
-
-```bash
-conda create --name e2e-prod python=3.10 && conda activate e2e-prod
-```
-
-Then install the dependencies using the following command:
-
-```bash
-pip install requirements.txt
-```
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- WORKFLOW -->
-## Workflow
+<!-- Usage -->
+## Usage
 
-1. (OPTIONAL) Use the research environment to run the **Exploratory Data Analysis (EDA) notebook**. This notebook uses Seaborn and Matplotlib to better understand the original, raw dataset that will be used to train and assess the developed machine learning model (in this case, a LightGBM classifier).
+1. Go to the root folder of the project, then use Docker Compose to build the **dev** containers, which also includes the isolated environment for MLflow.
 
-2. Use the research environment to run the **Data Processing notebook**. Applying feature engineering, feature encoding, feature scaling, and separating the data into training and validation is the goal of this notebook. Pickle, Pandas, and Numpy are then used to save the artifacts and the cleaned features.
+```bash
+docker compose up -d --build dev mlflow
+```
 
-3. Use the research environment to run the **Model Experimentations notebook**. With feature selection and hyperparameter tuning using MLflow and Optuna, this notebook attempts to apply model experiments using a few different Machine Learning models (Random Forest, Decision Tree, XGBoost, LightGBM, and CatBoost). The MLflow model registry is used to store the best tuned models and baselines (using the model's default parameters). For further information, see the `README` file located within the `model` folder. The experiments (feature selection and hyperparameter tuning) and their best model (one for each experiment) saved locally in MLflow are both displayed in the figures below.
+2. In your preferred browser, open the URL `http://0.0.0.0:8888/tree?`. The research environment, also known as the Jupyter notebooks, should appear, as shown in the figure below.
+
+![Research Environment](images/notebooks-screenshot.png)
+
+3. (OPTIONAL) Download both datasets (one for testing and one for training and model validation) using the `download_data.sh` script that comes with the **data** folder.
+
+4. (OPTIONAL) Use the research environment to run the **Exploratory Data Analysis (EDA) notebook**. This notebook uses Seaborn and Matplotlib to better understand the original, raw dataset that will be used to train and assess the developed machine learning model (in this case, a LightGBM classifier).
+
+5. Use the research environment to run the **Data Processing notebook**. Applying feature engineering, feature encoding, feature scaling, and separating the data into training and validation is the goal of this notebook. Pickle, Pandas, and Numpy are then used to save the artifacts and the cleaned features to the AWS S3 bucket or locally in the `models` folder.
+
+6. Use the research environment to run the **Model Experimentations notebook**. With feature selection and hyperparameter tuning using MLflow and Optuna, this notebook attempts to apply model experiments using a few different Machine Learning models (Random Forest, Decision Tree, XGBoost, LightGBM, and CatBoost). The MLflow model registry is used to store the best tuned models and baselines (using the model's default parameters), while the AWS RDS is used as a backend store to save the experiments (or locally in the root folder inside `mlruns` and `mlartifacts` folders). For further information, see the `README` file located within the `model` folder. The experiments (feature selection and hyperparameter tuning) and their best model (one for each experiment) saved locally in MLflow are both displayed in the figures below.
 
 ![MLflow experiments](images/mlflow-experiments.png)
 
 ![MLflow model registry](images/mlflow-model-registry.png)
 
-4. Use the production environment to run the **API**. For further information, see the `README` file located inside the `src` folder. An illustration of the API operating locally can be found in the figure below.
+7. The best models should be saved in MLflow's model registry after the experiments are finished, and you can then select one to deploy. The **experiment ID**, **run ID**, **name** (which you used to register the model), **version**, **flavor**, and, lastly, which **features** were used to train that model must all be obtained by opening the URL `http://0.0.0.0:8000/` in your preferred browser and placing them in the `src/config/model.yaml` file. In this case, we are using a `LightGBM` classifier model that was trained on with the following features: `['Gender_x0_Male', 'Age_x0_q3', 'Age_x0_q4', 'FAVC_x0_yes', 'CAEC_x0_Frequently', 'SCC_x0_yes', 'CALC_x0_no', 'EVEMM_x0_1', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'FAF', 'TUE', 'BMI', 'PAL', 'IBW']`.
+
+8. After navigating to the root folder of the project, use Docker Compose to build the **production** container by running the following command:
+
+```bash
+docker compose up -d --no-deps --build prod
+```
+
+9. The production environment, also known as the FastAPI documentation, should appear when you open the URL `http://0.0.0.0:5000/docs` in your preferred browser, as seen in the figure below.
 
 ![API](images/api.png)
 
-P.S. The root folder should be used to execute all commands from the research environment. The `src` folder is where the API should be executed.
+10. The Fast API's user interface allows you to run the API by iterating directly. See the `README` file, which is contained in the `src` folder, for more details.
+
+11. Go to the project's root folder, then use Docker Compose to create the **test** container with the following command to launch the unit and integration tests:
+
+```bash
+docker compose up -d --no-deps --build test
+```
+
+12. It should take a few seconds for the tests to complete. After that, you can run `docker logs <TEST_CONTAINER_ID>` to see the overall results or view the test coverage by looking at the `cov_html` folder inside the `reports` folder.
+
+DISCLAIMER: Just the workflow in the research environment was tested with AWS because of financial constraints. Docker Compose should be used to run everything locally in order to fully experience both research and production workflows.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Add a model training endpoint.
 - [ ] Add end-to-end test cases.
 - [ ] Add a Continuous Delivery (CD) GitHub Action.
-- [ ] Add Continuous Training (CT) workflow.
 - [ ] Add a integration test case to assure that the model's performance showed in MLflow is the same when evaluating the model on the same data, but using the API's code.
 - [ ] Integrate uvicorn to FastAPI.
 - [ ] Fix the test GitHub's workflow (it's not finishing because needs connection with FastAPI and MLflow to validate some tests).
-- [ ] Fix relative path issues in configuration files.
-- [ ] Fix and improve Docker files.
+- [X] Fix relative path issues in configuration files.
+- [X] Fix and improve Docker files.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
