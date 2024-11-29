@@ -8,6 +8,7 @@ from typing import Dict
 import requests
 
 from src.config.model import model_settings
+from src.config.reports import report_settings
 from . import CODE_VERSION
 
 
@@ -17,7 +18,7 @@ def test_version_endpoint() -> None:
     """
     desired_keys = ["model_version", "code_version"]
 
-    response = requests.get("http://127.0.0.1:8000/version", timeout=100)
+    response = requests.get("http://prod:8000/version", timeout=100)
     content = json.loads(response.text)
 
     assert response.status_code == 200
@@ -32,11 +33,13 @@ def test_model_performance_report_endpoint() -> None:
     Unit case to test the API's model performance report endpoint.
     """
     window_size = 300
-    path = "reports/model_performance.html"
+    path = Path.joinpath(
+        report_settings.REPORTS_PATH, report_settings.MODEL_PERFORMANCE_REPORT_NAME
+    )
     headers = {"Accept-Encoding": "identity"}
 
     response = requests.get(
-        f"http://127.0.0.1:8000/monitor-model?window_size={window_size}",
+        f"http://prod:8000/monitor-model?window_size={window_size}",
         timeout=100,
         headers=headers,
     )
@@ -51,11 +54,13 @@ def test_target_drift_report_endpoint() -> None:
     Unit case to test the API's target drift report endpoint.
     """
     window_size = 300
-    path = "reports/target_drift.html"
+    path = Path.joinpath(
+        report_settings.REPORTS_PATH, report_settings.TARGET_DRIFT_REPORT_NAME
+    )
     headers = {"Accept-Encoding": "identity"}
 
     response = requests.get(
-        f"http://127.0.0.1:8000/monitor-target?window_size={window_size}",
+        f"http://prod:8000/monitor-target?window_size={window_size}",
         timeout=100,
         headers=headers,
     )
@@ -70,11 +75,13 @@ def test_data_drift_report_endpoint() -> None:
     Unit case to test the API's data drift report endpoint.
     """
     window_size = 300
-    path = "reports/data_drift.html"
+    path = Path.joinpath(
+        report_settings.REPORTS_PATH, report_settings.DATA_DRIFT_REPORT_NAME
+    )
     headers = {"Accept-Encoding": "identity"}
 
     response = requests.get(
-        f"http://127.0.0.1:8000/monitor-data?window_size={window_size}",
+        f"http://prod:8000/monitor-data?window_size={window_size}",
         timeout=100,
         headers=headers,
     )
@@ -89,11 +96,13 @@ def test_data_quality_report_endpoint() -> None:
     Unit case to test the API's data quality report endpoint.
     """
     window_size = 300
-    path = "reports/data_quality.html"
+    path = Path.joinpath(
+        report_settings.REPORTS_PATH, report_settings.DATA_QUALITY_REPORT_NAME
+    )
     headers = {"Accept-Encoding": "identity"}
 
     response = requests.get(
-        f"http://127.0.0.1:8000/monitor-data-quality?window_size={window_size}",
+        f"http://prod:8000/monitor-data-quality?window_size={window_size}",
         timeout=100,
         headers=headers,
     )
@@ -128,7 +137,7 @@ def test_inference_endpoint() -> None:
         "SCC": "no",
     }
 
-    response = requests.post("http://127.0.0.1:8000/predict", json=data, timeout=100)
+    response = requests.post("http://prod:8000/predict", json=data, timeout=100)
     content = json.loads(response.text)
 
     assert response.status_code == 200

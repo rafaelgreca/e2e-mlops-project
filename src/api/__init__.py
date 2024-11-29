@@ -18,7 +18,7 @@ use_aws = bool(aws_credentials.S3 != "YOUR_S3_BUCKET_URL")
 if aws_credentials.EC2 != "YOUR_EC2_INSTANCE_URL":
     mlflow.set_tracking_uri(f"http://{aws_credentials.EC2}:5000")
 else:
-    mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    mlflow.set_tracking_uri("http://mlflow:5000")
 
 if not Path.exists(
     Path.joinpath(general_settings.DATA_PATH, general_settings.CURRENT_FILE_NAME)

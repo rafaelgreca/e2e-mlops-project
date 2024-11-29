@@ -18,7 +18,7 @@ label_encoder = load_feature(
 if aws_credentials.EC2 != "YOUR_EC2_INSTANCE_URL":
     mlflow.set_tracking_uri(f"http://{aws_credentials.EC2}:5000")
 else:
-    mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    mlflow.set_tracking_uri("http://mlflow:5000")
 
 
 class ModelServe:
