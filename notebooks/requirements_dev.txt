@@ -6,7 +6,7 @@ jupyter==1.0.0
 kaggle==1.6.17
 lightgbm==4.5.0
 matplotlib==3.6.3
-mlflow==2.15.1
+mlflow==2.16.0
 numpy==1.22.3
 optuna==3.6.1
 pandas==1.5.2
