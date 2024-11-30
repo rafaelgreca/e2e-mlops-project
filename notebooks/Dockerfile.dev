@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y python3.10 python3.10-venv python3.10-d
 RUN mkdir -p /e2e-project/notebooks
 
 # copying all the files within this folder to the newly created folder
-COPY . /e2e-project/notebooks
+COPY /notebooks /e2e-project/notebooks/
 
 # setting the curreting directory to be the folder containing the notebooks
 WORKDIR /e2e-project

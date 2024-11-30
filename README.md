@@ -248,13 +248,15 @@ P.S.: if you are interested in modifying the code as you desire, it's better to 
 
 4. (OPTIONAL) Use the script included within the **data** folder to download both datasets (one for testing and the other for training and verifying the model). You can run that from your study environment as well.
 
-5. Use the following command to install the pre-commit package manager:
+5. In order to save both Dockerfiles (for the development and production environments) in Docker Hub, you need to set up your `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets in the repository's settings (`Settings > Secrets and Variables > Actions`).
+
+6. Use the following command to install the pre-commit package manager:
 
 ```bash
 pip install pre-commit
 ```
 
-6. Activate pre-commit using the following command:
+7. Activate pre-commit using the following command:
 
 ```bash
 pre-commit install
@@ -309,6 +311,10 @@ docker compose up -d --no-deps --build test
 
 12. It should take a few seconds for the tests to complete. After that, you can run `docker logs <TEST_CONTAINER_ID>` to see the overall results or view the test coverage by looking at the `cov_html` folder inside the `reports` folder.
 
+13. The docker's GitHub action/workflow will save both Dockerfiles (one for the develop/research environment and the other for the production environmet) images in your DockerHub's profile, as illustrated in the figure below.
+
+![Docker Hub](images/dockerhub.png)
+
 DISCLAIMER: Just the workflow in the research environment was tested with AWS because of financial constraints. Docker Compose should be used to run everything locally in order to fully experience both research and production workflows.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -317,7 +323,7 @@ DISCLAIMER: Just the workflow in the research environment was tested with AWS be
 ## Roadmap
 
 - [ ] Add end-to-end test cases.
-- [ ] Add a Continuous Delivery (CD) GitHub Action.
+- [X] Add a Continuous Delivery (CD) GitHub Action.
 - [ ] Add a integration test case to assure that the model's performance showed in MLflow is the same when evaluating the model on the same data, but using the API's code.
 - [ ] Integrate uvicorn to FastAPI.
 - [ ] Fix the test GitHub's workflow (it's not finishing because needs connection with FastAPI and MLflow to validate some tests).

@@ -4,8 +4,8 @@ services:
     image: e2e-dev:latest
 
     build:
-      context: ./notebooks/
-      dockerfile: ./Dockerfile.dev
+      context: .
+      dockerfile: ./notebooks/Dockerfile.dev
 
     depends_on:
       - mlflow
