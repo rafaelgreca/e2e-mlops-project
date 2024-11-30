@@ -16,8 +16,8 @@ If you haven't your credentials yet, please check the `docs` folder first before
 
 ```bash
 mlflow server -h 0.0.0.0 -p 5000 \
-              --backend-store-uri postgresql://postgres:postgres@e2e-db.clug0k8m4hom.us-east-1.rds.amazonaws.com:5432 \
-              --default-artifact-root s3://e2e-aws-bucket
+              --backend-store-uri postgresql://postgres:postgres@<AWS_RDS_URL> \
+              --default-artifact-root s3://<AWS_BUCKET_NAME>
 ```
 
 P.S.: To run the code locally, use the following command:
