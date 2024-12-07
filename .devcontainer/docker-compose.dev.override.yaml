@@ -1,6 +1,8 @@
 services:
   app:
     command: ["/bin/bash"]
+    env_file:
+      - .devcontainer/.env
     tty: true
 
     # setting repo root folder as container workspace

@@ -74,6 +74,7 @@
 
 	// Features to add to the container
 	"features": {
-		"ghcr.io/dhoeric/features/google-cloud-cli:1": {}
+		"ghcr.io/dhoeric/features/google-cloud-cli:1": {},
+		"git": "latest"
 	}
 }
