@@ -11,7 +11,7 @@
 	},
 	"service": "app",
 	"workspaceFolder": "/workspace",
-	
+
 	// Container customizations
 	"customizations": {
 		"vscode": {
@@ -64,17 +64,17 @@
 				"eamodio.gitlens",
 				"ms-toolsai.jupyter",
 				"yzhang.markdown-all-in-one",
-				"DavidAnson.vscode-markdownlint"
+				"DavidAnson.vscode-markdownlint",
+				"elagil.pre-commit-helper"
 			]
 		}
 	},
 
 	// Commands to run during setup
-	"updateContentCommand": "chmod +x /workspace/.devcontainer/setup-git.sh && /workspace/.devcontainer/setup-git.sh",
+	"postCreateCommand": "chmod +x /workspace/.devcontainer/setup.sh && /workspace/.devcontainer/setup.sh",
 
 	// Features to add to the container
 	"features": {
-		"ghcr.io/dhoeric/features/google-cloud-cli:1": {},
 		"git": "latest"
 	}
 }
