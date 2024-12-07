@@ -1,0 +1,8 @@
+services:
+  app:
+    command: ["/bin/bash"]
+    tty: true
+
+    # setting repo root folder as container workspace
+    volumes:
+      - ./:/workspace
