@@ -27,7 +27,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Install dependencies listed in requirements.txt
           pip install flake8  # Install Flake8 for linting
 
       # Step 4: Run Flake8 for code quality checks
