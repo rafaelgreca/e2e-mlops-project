@@ -3,10 +3,14 @@ name: CI
 on:
   push:
     branches:
-      - master  
+      - '**'  # Triggers for pushes to any branch
   pull_request:
     branches:
-      - master
+      - master  # Triggers for pull requests targeting the master branch
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   build-and-up:
