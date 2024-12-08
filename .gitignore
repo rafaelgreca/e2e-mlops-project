@@ -4,6 +4,7 @@ logs/
 ipynb_checkpoints/
 mlruns
 mlartifacts
+models/**/*.pkl
 # *.csv
 
 # Byte-compiled / optimized / DLL files
