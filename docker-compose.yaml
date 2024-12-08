@@ -1,22 +1,12 @@
 services:
   mlflow:
-    image: e2e:latest
-
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: ghcr.io/mlflow/mlflow:v2.16.0
 
     command: ["mlflow", "server", "-h", "0.0.0.0", "-p", "5000"]
 
     # exposing the port that will be used by MLFlow
     ports:
       - "5000:5000"
-
-    # setting external volumes
-    volumes:
-      - ./src/config/:/e2e-project/src/config/
-      - ./models:/e2e-project/models/
-      - ./data:/e2e-project/data/
 
   # creating the application environment 
   app:
