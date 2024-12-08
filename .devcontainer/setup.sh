@@ -1,6 +1,4 @@
 #!/bin/sh
-# init pre-commit hooks
-pre-commit install
 
 # git config
 git config --global user.name $GIT_USERNAME

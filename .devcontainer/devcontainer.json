@@ -64,8 +64,7 @@
 				"eamodio.gitlens",
 				"ms-toolsai.jupyter",
 				"yzhang.markdown-all-in-one",
-				"DavidAnson.vscode-markdownlint",
-				"elagil.pre-commit-helper"
+				"DavidAnson.vscode-markdownlint"
 			]
 		}
 	},
