@@ -1,4 +1,1 @@
-* text eol=lf
-images/* -text
-*.pkl -text
-*.png -text
+*.sh text eol=lf
