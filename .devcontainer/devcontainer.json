@@ -34,7 +34,6 @@
 				// Linting
 				"python.linting.enabled": true,
 				"python.linting.flake8Enabled": true,
-				"python.linting.flake8Args": ["--max-line-length=120"],
 				"python.linting.mypyEnabled": true,
 				"mypy-type-checker.args": ["--ignore-missing-imports", "--disallow-untyped-defs", "--disallow-incomplete-defs", "--cache-dir", ".mypy_cache"],
 				// Unit testing
