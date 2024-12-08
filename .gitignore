@@ -1,3 +1,5 @@
+.devcontainer/.env
+.devcontainer/credentials
 logs/
 ipynb_checkpoints/
 mlruns
