@@ -27,3 +27,4 @@ optuna
 seaborn
 ipykernel
 pre-commit
+xgboost
