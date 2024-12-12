@@ -30,7 +30,11 @@
 				"python.analysis.typeCheckingMode": "basic",
 				"python.languageServer": "Pylance",
 				"editor.defaultFormatter": "ms-python.black-formatter",
-
+				"notebook.defaultFormatter": "ms-python.black-formatter",
+				"notebook.formatOnSave.enabled": true,
+				"notebook.diff.ignoreMetadata": true,
+				"notebook.diff.ignoreOutputs": true,
+				"notebook.formatOnCellExecution": true,
 				// Linting
 				"python.linting.enabled": true,
 				"python.linting.flake8Enabled": true,
@@ -44,7 +48,6 @@
 					"tests",
 					"--disable-pytest-warnings"
 				],
-
 				// Docker settings
 				"docker.enableTelemetry": false,
 				"docker.languageserver.diagnostics.enabled": true
