@@ -1,6 +1,6 @@
-FEATURES: ['Gender_x0_Male', 'Age_x0_q3', 'Age_x0_q4', 'FAVC_x0_yes', 'CAEC_x0_Frequently', 'SCC_x0_yes', 'CALC_x0_no', 'EVEMM_x0_1', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'FAF', 'TUE', 'BMI', 'PAL', 'IBW']
-MODEL_NAME: 'MODELS_NAME'
-MODEL_FLAVOR: 'MODELS_FLAVOR'
-RUN_ID: 'RUN_ID'
-EXPERIMENT_ID: 'EXPERIMENT_ID'
-VERSION: 'MODELS_VERSION'
+FEATURES: ["Gender_x0_Male", "family_history_with_overweight_x0_yes"]
+MODEL_NAME: 'lightgbm'
+MODEL_FLAVOR: 'lightgbm'
+RUN_ID: 'd524016eae7b45bebcbe745b1edaad96'
+EXPERIMENT_ID: '666506561086108314'
+VERSION: 'V0'

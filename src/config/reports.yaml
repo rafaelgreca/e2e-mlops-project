@@ -1,4 +1,4 @@
-REPORTS_PATH: '../reports/'
+REPORTS_PATH: 'reports/'
 TARGET_DRIFT_REPORT_NAME: 'target_drift.html'
 DATA_DRIFT_REPORT_NAME: 'data_drift.html'
 DATA_QUALITY_REPORT_NAME: 'data_quality.html'

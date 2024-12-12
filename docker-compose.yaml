@@ -8,20 +8,20 @@ services:
     ports:
       - "5000:5000"
 
-  # creating the application environment 
-  app:
+  # creating the production reports environment 
+  prod:
     image: e2e:latest
 
     build:
       context: .
       dockerfile: ./Dockerfile
 
-    working_dir: /e2e-mlops-project/src/
+    working_dir: /e2e-mlops-project/
 
     depends_on:
       - mlflow
 
-    command: ["fastapi", "run", "api/main.py", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["fastapi", "run", "src/api/main.py", "--host", "0.0.0.0", "--port", "8000"]
 
     # exposing the port that will be used by FastAPI
     ports:
@@ -29,7 +29,4 @@ services:
 
     # setting external volumes
     volumes:
-      - ./models:/e2e-mlops-project/models/
-      - ./data:/e2e-mlops-project/data/
-      - ./reports:/e2e-mlops-project/reports/
-      - ./notebooks/VERSION:/e2e-mlops-project/notebooks/VERSION
+      - ./:/e2e-mlops-project
