@@ -147,4 +147,4 @@ def test_inference_endpoint() -> None:
     assert isinstance(content, Dict)
     assert all(dk in content.keys() for dk in desired_keys)
     pytest.skip("Test too rigid")
-    # assert content[desired_keys[0]] == desired_classes
+    assert content[desired_keys[0]] == desired_classes
