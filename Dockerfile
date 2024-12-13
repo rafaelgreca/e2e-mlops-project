@@ -1,8 +1,14 @@
 # using the lastest version of Ubuntu 22.04 as a base for the Docker image
-FROM ubuntu:22.04
+FROM python:3.9-slim
+ENV VENV_DIR=/opt/venv/_dev
+ENV PATH=$VENV_DIR/bin:$PATH
+SHELL ["/bin/bash", "-c"]
 
-# installing Python and Unzip
-RUN apt-get update && apt-get install -y python3.10 python3.10-venv python3.10-dev python3-pip libgomp1
+COPY ./requirements.txt /.
+RUN python -m venv $VENV_DIR \
+    && $VENV_DIR/bin/pip install --upgrade pip \
+    && source $VENV_DIR/bin/activate \
+    && pip install -r /requirements.txt
 
 # creating the root folder
 RUN mkdir -p /e2e-mlops-project
@@ -18,9 +24,3 @@ WORKDIR /e2e-mlops-project
 RUN rm -r /e2e-mlops-project/notebooks/
 
 COPY ./notebooks/VERSION /e2e-mlops-project/notebooks/VERSION
-
-# updating pip
-RUN pip install --no-cache-dir -U pip
-
-# installing requirements
-RUN pip install -r requirements.txt

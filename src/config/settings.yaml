@@ -1,7 +1,7 @@
 RAW_FILE_NAME: 'Original_ObesityDataSet.csv' # the data used to train and validate the model
 CURRENT_FILE_NAME: 'Current_ObesityDataSet.csv' # the new data used to monitor the model
 TARGET_COLUMN: 'NObeyesdad'
-DATA_PATH: '../data/'
-ARTIFACTS_PATH: '../models/artifacts/'
-FEATURES_PATH: '../models/features/'
-RESEARCH_ENVIRONMENT_PATH: '../notebooks/'
+DATA_PATH: 'data/'
+ARTIFACTS_PATH: 'models/artifacts/'
+FEATURES_PATH: 'models/features/'
+RESEARCH_ENVIRONMENT_PATH: 'notebooks/'

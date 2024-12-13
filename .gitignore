@@ -1,7 +1,11 @@
+.devcontainer/.env
+.devcontainer/credentials
 logs/
 ipynb_checkpoints/
 mlruns
 mlartifacts
+models/**/*.pkl
+reports/*
 # *.csv
 
 # Byte-compiled / optimized / DLL files

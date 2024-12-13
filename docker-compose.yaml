@@ -1,33 +1,6 @@
 services:
-  # creating the development environment service (which is running the jupyter notebook)
-  dev:
-    image: e2e-dev:latest
-
-    build:
-      context: .
-      dockerfile: ./notebooks/Dockerfile.dev
-
-    depends_on:
-      - mlflow
-
-    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]
-
-    # exposing the port that will be used by Jupyter Notebook
-    ports:
-      - "8888:8888"
-
-    # setting external volumes
-    volumes:
-      - ./src/config/:/e2e-project/src/config/
-      - ./models:/e2e-project/models/
-      - ./data:/e2e-project/data/
-
   mlflow:
-    image: e2e-dev:latest
-
-    build:
-      context: ./notebooks/
-      dockerfile: ./Dockerfile.dev
+    image: ghcr.io/mlflow/mlflow:v2.16.0
 
     command: ["mlflow", "server", "-h", "0.0.0.0", "-p", "5000"]
 
@@ -35,26 +8,20 @@ services:
     ports:
       - "5000:5000"
 
-    # setting external volumes
-    volumes:
-      - ./src/config/:/e2e-project/src/config/
-      - ./models:/e2e-project/models/
-      - ./data:/e2e-project/data/
-
-  # creating the production environment (which will run FastAPI)
+  # creating the production reports environment 
   prod:
-    image: e2e-prod:latest
+    image: e2e:latest
 
     build:
       context: .
       dockerfile: ./Dockerfile
 
-    working_dir: /e2e-mlops-project/src/
+    working_dir: /e2e-mlops-project/
 
     depends_on:
       - mlflow
 
-    command: ["fastapi", "run", "api/main.py", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["fastapi", "run", "src/api/main.py", "--host", "0.0.0.0", "--port", "8000"]
 
     # exposing the port that will be used by FastAPI
     ports:
@@ -62,31 +29,4 @@ services:
 
     # setting external volumes
     volumes:
-      - ./models:/e2e-mlops-project/models/
-      - ./data:/e2e-mlops-project/data/
-      - ./reports:/e2e-mlops-project/reports/
-      - ./notebooks/VERSION:/e2e-mlops-project/notebooks/VERSION
-
-  # creating the production environment (which will run FastAPI)
-  test:
-    image: e2e-prod:latest
-
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-
-    working_dir: /e2e-mlops-project/src/
-
-    depends_on:
-      - mlflow
-      - prod
-
-    command: ["pytest", "--cov-report", "html:../reports/cov_html", "--cov=.", "../tests/", "--disable-warnings"]
-
-    # setting external volumes
-    volumes:
-      - ./models:/e2e-mlops-project/models/
-      - ./data:/e2e-mlops-project/data/
-      - ./tests:/e2e-mlops-project/tests/
-      - ./reports:/e2e-mlops-project/reports/
-      - ./notebooks/VERSION:/e2e-mlops-project/notebooks/VERSION
+      - ./:/e2e-mlops-project
