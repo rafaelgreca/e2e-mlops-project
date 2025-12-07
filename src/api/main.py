@@ -9,6 +9,14 @@ from fastapi import FastAPI, Depends
 from fastapi.responses import FileResponse
 from loguru import logger
 
+from pathlib import Path
+from typing import Dict
+import pandas as pd
+from fastapi import FastAPI, Depends
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from loguru import logger
+
 from .utils import (
     build_data_drift_report,
     build_data_quality_report,
@@ -25,6 +33,18 @@ from ..schema.monitoring import Monitoring
 from . import current_dataset, loaded_model, reference_data
 
 app = FastAPI()
+
+# ---------------------------------------------------------
+# NEW: Mount Static Files to serve the GUI
+# ---------------------------------------------------------
+# Get the absolute path to the static folder
+static_dir = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# Root endpoint redirects to the dashboard
+@app.get("/")
+def read_root():
+    return FileResponse(static_dir / "index.html")
 
 
 @app.get("/monitor-model")
