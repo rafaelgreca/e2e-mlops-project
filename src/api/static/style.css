@@ -1,0 +1,220 @@
+/* src/api/static/style.css */
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --bg-color: #f3f4f6;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+aside {
+    width: 260px;
+    background-color: var(--card-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+nav button {
+    background: none;
+    border: none;
+    width: 100%;
+    padding: 12px 15px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-muted);
+    border-radius: 8px;
+    transition: all 0.2s;
+    margin-bottom: 5px;
+}
+
+nav button:hover {
+    background-color: #f9fafb;
+    color: var(--primary);
+}
+
+nav button.active {
+    background-color: #eef2ff;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.version-info {
+    margin-top: auto;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+/* Main Content */
+main {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Panel visibility */
+.panel {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Forms */
+.card {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    max-width: 600px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+input,
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Monitoring Grid */
+.monitor-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.monitor-btn {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+}
+
+.monitor-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.iframe-container {
+    width: 100%;
+    height: 75vh;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Prediction Result */
+#prediction-result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #ecfdf5;
+    border: 1px solid #10b981;
+    color: #065f46;
+    border-radius: 6px;
+    display: none;
+}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obesity Level Prediction</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <aside>
+        <div class="brand"><span> End-to-End MLOps Project </span></div>
+        <nav>
+            <button id="btn-predict" class="active" onclick="showPanel('predict')">Predict</button>
+            <button id="btn-monitor" onclick="showPanel('monitor')"> Monitor</button>
+        </nav>
+        <div class="version-info" id="version-display">Loading version...</div>
+    </aside>
+
+    <main>
+        <section id="predict" class="panel active">
+            <h1 class="section-title">Obesity Risk Prediction </h1>
+            <div class="card">
+                <form id="predict-form" onsubmit="makePrediction(event)">
+
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" step="1.0" name="Age" value="24.0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Height (meters)</label>
+                        <input type="number" step="0.10" name="Height" value="1.70" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" step="1.0" name="Weight" value="80.0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select name="Gender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Family History with Overweight</label>
+                        <select name="family_history_with_overweight">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>High Caloric Food (FAVC)</label>
+                        <select name="FAVC">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vegetable Consumption (FCVC) (0-3)</label>
+                        <input type="number" step="0.1" name="FCVC" value="2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Number of Main Meals (NCP) (0-4)</label>
+                        <input type="number" step="0.1" name="NCP" value="3" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Daily Water (CH2O) (1-3)</label>
+                        <input type="number" step="0.1" name="CH2O" value="2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Physical Activity (FAF) (0-3)</label>
+                        <input type="number" step="0.1" name="FAF" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technology Usage (TUE) (0-2)</label>
+                        <input type="number" step="1" name="TUE" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Transportation (MTRANS)</label>
+                        <select name="MTRANS">
+                            <option value="Public_Transportation">Public Transportation</option>
+                            <option value="Automobile">Automobile</option>
+                            <option value="Walking">Walking</option>
+                            <option value="Motorbike">Motorbike</option>
+                            <option value="Bike">Bike</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Alcohol Consumption (CALC)</label>
+                        <select name="CALC">
+                            <option value="Sometimes">Sometimes</option>
+                            <option value="Frequently">Frequently</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Food between meals (CAEC)</label>
+                        <select name="CAEC">
+                            <option value="Sometimes">Sometimes</option>
+                            <option value="Frequently">Frequently</option>
+                            <option value="Always">Always</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monitor Calories (SCC)</label>
+                        <select name="SCC">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Predict</button>
+                </form>
+                <div id="prediction-result"></div>
+            </div>
+        </section>
+
+        <section id="monitor" class="panel">
+            <h1 class="section-title">System Monitoring</h1>
+            <div class="card" style="margin-bottom: 20px; max-width: 100%;">
+                <div class="monitor-controls">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="margin:0;">Window Size:</label>
+                        <input type="number" id="window-size" value="3000" style="width: 100px;">
+                    </div>
+                    <button class="monitor-btn" onclick="loadReport('/monitor-model')">Model Performance</button>
+                    <button class="monitor-btn" onclick="loadReport('/monitor-target')">Target Drift</button>
+                    <button class="monitor-btn" onclick="loadReport('/monitor-data')">Data Drift</button>
+                    <button class="monitor-btn" onclick="loadReport('/monitor-data-quality')">Data Quality</button>
+                </div>
+            </div>
+            <div class="iframe-container">
+                <iframe id="report-frame" src="about:blank"></iframe>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
