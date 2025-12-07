@@ -101,11 +101,12 @@ def send_dataset_to_s3(
         aws_access_key_id=aws_credentials.AWS_ACCESS_KEY,
         aws_secret_access_key=aws_credentials.AWS_SECRET_KEY,
     )
-
+    
+    # Construct the full file path
+    full_file_path = pathlib.Path.joinpath(file_path, file_name)
     bucket.upload_file(
-        file_path,
+        str(full_file_path),  # Changed: pass the full file path, not just the directory
         aws_credentials.S3,
         file_name,
     )
-
-    os.remove(pathlib.Path.joinpath(file_path, file_name))
+    os.remove(full_file_path)  # Changed: use the full_file_path variable

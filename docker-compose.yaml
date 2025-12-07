@@ -10,7 +10,16 @@ services:
     depends_on:
       - mlflow
 
-    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]
+    command:
+      [
+        "jupyter",
+        "notebook",
+        "--ip=0.0.0.0",
+        "--port=8888",
+        "--no-browser",
+        "--allow-root",
+        "--NotebookApp.token=''",
+      ]
 
     # exposing the port that will be used by Jupyter Notebook
     ports:
@@ -18,16 +27,19 @@ services:
 
     # setting external volumes
     volumes:
+      - ./notebooks:/e2e-project/notebooks/ # Any change made in Jupyter in browser, it updates the local folder notebooks too.
       - ./src/config/:/e2e-project/src/config/
       - ./models:/e2e-project/models/
       - ./data:/e2e-project/data/
+      - ./mlruns:/e2e-project/notebooks/mlruns
+      - ./mlartifacts:/e2e-project/notebooks/mlartifacts
 
   mlflow:
     image: e2e-dev:latest
 
     build:
-      context: ./notebooks/
-      dockerfile: ./Dockerfile.dev
+      context: .
+      dockerfile: ./notebooks/Dockerfile.dev
 
     command: ["mlflow", "server", "-h", "0.0.0.0", "-p", "5000"]
 
@@ -40,6 +52,8 @@ services:
       - ./src/config/:/e2e-project/src/config/
       - ./models:/e2e-project/models/
       - ./data:/e2e-project/data/
+      - ./mlruns:/e2e-project/notebooks/mlruns
+      - ./mlartifacts:/e2e-project/notebooks/mlartifacts
 
   # creating the production environment (which will run FastAPI)
   prod:
@@ -54,7 +68,11 @@ services:
     depends_on:
       - mlflow
 
-    command: ["fastapi", "run", "api/main.py", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      - USE_AWS=false
+
+    command:
+      ["fastapi", "run", "api/main.py", "--host", "0.0.0.0", "--port", "8000"]
 
     # exposing the port that will be used by FastAPI
     ports:
@@ -66,6 +84,8 @@ services:
       - ./data:/e2e-mlops-project/data/
       - ./reports:/e2e-mlops-project/reports/
       - ./notebooks/VERSION:/e2e-mlops-project/notebooks/VERSION
+      - ./notebooks/mlartifacts:/e2e-mlops-project/notebooks/mlartifacts # mount mlartifacts and mlruns to share model weights and experiment data from local path if mlflow is not used inside the container
+      - ./notebooks/mlruns:/e2e-mlops-project/notebooks/mlruns # mount mlruns
 
   # creating the production environment (which will run FastAPI)
   test:
@@ -81,7 +101,15 @@ services:
       - mlflow
       - prod
 
-    command: ["pytest", "--cov-report", "html:../reports/cov_html", "--cov=.", "../tests/", "--disable-warnings"]
+    command:
+      [
+        "pytest",
+        "--cov-report",
+        "html:../reports/cov_html",
+        "--cov=.",
+        "../tests/",
+        "--disable-warnings",
+      ]
 
     # setting external volumes
     volumes:
@@ -90,3 +118,5 @@ services:
       - ./tests:/e2e-mlops-project/tests/
       - ./reports:/e2e-mlops-project/reports/
       - ./notebooks/VERSION:/e2e-mlops-project/notebooks/VERSION
+      - ./notebooks/mlartifacts:/e2e-mlops-project/notebooks/mlartifacts # mount mlartifacts and mlruns to share model weights and experiment data from local path if mlflow is not used inside the container
+      - ./notebooks/mlruns:/e2e-mlops-project/notebooks/mlruns # mount mlruns
