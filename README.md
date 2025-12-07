@@ -29,6 +29,7 @@
 </details>
 
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 The purpose of this project's design, development, and structure was to gain a deeper comprehension of the Machine Learning Operations (MLOps) lifecycle. Its goal was not to create the best machine learning system for determining an individual's level of obesity based on their physical characteristics and eating habits, but rather to replicate a real-world research setting in which data scientists write code in notebooks and then turn it into a complete ML pipeline solution by utilizing the fundamental ideas of MLOps.
@@ -121,44 +122,44 @@ The purpose of this project's design, development, and structure was to gain a d
 
 A brief explanation of the primary files and folders:
 
-* `data`: where the script used to download both sets via Kaggle's API and the cleaned version of the training data as well as the evaluation and training datasets will be saved. Note: This folder is primarily used as a temporary folder to install the datasets and when the research environment is not operating locally.
-* `models`: this is where the features (like training and validation arrays) and artifacts (like encoders and scalers) will be stored. Note: This folder is primarily used as a temporary location to install features and artifacts when the research environment is not operating locally.
-* `notebooks`: these are used to simulate a real-life research work environment by conducting exploratory data analysis, data processing, model training and evaluation, and experiment tracking. Additionally, where the Docker file and isolated requirements for the development environment are stored.
-* `reports`: this is where the coverage tests, model performance, data drift, data quality, and target drift monitoring tests will be stored.
-* `src`: The main functions, including data processing, loading the trained model, model inference, configuration files, Pydantic's schemas, and the API code source.
-* `tests`: this is where the model, data, and API unit and integration tests are created.
-* `.pre-commit-config.yaml`: the configuration file for pre-commit.
-* `.pylintrc`: the configuration file for Pylint.
-* The file `docker-compose.yaml` is used to define and execute multi-container applications in both production and research settings. `Dockerfile`: the production environment's Dockerfile.
-* `LICENSE`: the MIT license for the project.
-* `requirements.txt`: the environment's requirements for production.
+- `data`: where the script used to download both sets via Kaggle's API and the cleaned version of the training data as well as the evaluation and training datasets will be saved. Note: This folder is primarily used as a temporary folder to install the datasets and when the research environment is not operating locally.
+- `models`: this is where the features (like training and validation arrays) and artifacts (like encoders and scalers) will be stored. Note: This folder is primarily used as a temporary location to install features and artifacts when the research environment is not operating locally.
+- `notebooks`: these are used to simulate a real-life research work environment by conducting exploratory data analysis, data processing, model training and evaluation, and experiment tracking. Additionally, where the Docker file and isolated requirements for the development environment are stored.
+- `reports`: this is where the coverage tests, model performance, data drift, data quality, and target drift monitoring tests will be stored.
+- `src`: The main functions, including data processing, loading the trained model, model inference, configuration files, Pydantic's schemas, and the API code source.
+- `tests`: this is where the model, data, and API unit and integration tests are created.
+- `.pre-commit-config.yaml`: the configuration file for pre-commit.
+- `.pylintrc`: the configuration file for Pylint.
+- The file `docker-compose.yaml` is used to define and execute multi-container applications in both production and research settings. `Dockerfile`: the production environment's Dockerfile.
+- `LICENSE`: the MIT license for the project.
+- `requirements.txt`: the environment's requirements for production.
 
 In-depth explanation of the files within the `src` folder:
 
-* `api/`:
-    * `main.py`: contains the pipeline and key functions of the API.
-    * `utils.py`: contains auxiliary functions for the API, like generating monitoring reports and organizing data to precisely match Evidently AI's requirements.
-* `config/`:
-    * `aws.py`: handles the credentials for AWS specified in the credentials file.
-    * `credentials.yaml`: credentials configuration file.
-    * `kaggle.py`: deals with Kaggle's credentials defined inside the credentials file.
-    * `log.py`: handles the logs setting specified in the configuration file.
-    * `logs.yaml`: logs configuration file.
-    * `metadata.yaml`: The metadata file for Cookiecutter.
-    * `model.py`: handles the model setting specified in the configuration file.
-    * `model.yaml`: model configuration file.
-    * `reports.py`: handles the reports settings specified in the configuration file.
-    * `reports.yaml`: reports configuration file.
-    * `settings.py`: handles general setting specified in the configuration file.
-    * `settings.yaml`: general settings configuration file.
-* `data/`:
-    * `processing.py`: the functions for processing the data, including loading a dataset, generating the desired features, scaling and encoding the features, and more,
-    * `utils.py`: contains auxiliary functions for pre-processing and data processing tasks, like loading features and downloading datasets.
-* `model/`:
-    * `inference.py`: makes an inference for a given data set with the trained model.
-* `schema/`:
-    * `monitoring.py`: the Pydantic schema that verifies monitoring endpoint entries in the API.
-    * `person.py`: the Pydantic schema used to verify the entries of the inference endpoint of the API.
+- `api/`:
+  - `main.py`: contains the pipeline and key functions of the API.
+  - `utils.py`: contains auxiliary functions for the API, like generating monitoring reports and organizing data to precisely match Evidently AI's requirements.
+- `config/`:
+  - `aws.py`: handles the credentials for AWS specified in the credentials file.
+  - `credentials.yaml`: credentials configuration file.
+  - `kaggle.py`: deals with Kaggle's credentials defined inside the credentials file.
+  - `log.py`: handles the logs setting specified in the configuration file.
+  - `logs.yaml`: logs configuration file.
+  - `metadata.yaml`: The metadata file for Cookiecutter.
+  - `model.py`: handles the model setting specified in the configuration file.
+  - `model.yaml`: model configuration file.
+  - `reports.py`: handles the reports settings specified in the configuration file.
+  - `reports.yaml`: reports configuration file.
+  - `settings.py`: handles general setting specified in the configuration file.
+  - `settings.yaml`: general settings configuration file.
+- `data/`:
+  - `processing.py`: the functions for processing the data, including loading a dataset, generating the desired features, scaling and encoding the features, and more,
+  - `utils.py`: contains auxiliary functions for pre-processing and data processing tasks, like loading features and downloading datasets.
+- `model/`:
+  - `inference.py`: makes an inference for a given data set with the trained model.
+- `schema/`:
+  - `monitoring.py`: the Pydantic schema that verifies monitoring endpoint entries in the API.
+  - `person.py`: the Pydantic schema used to verify the entries of the inference endpoint of the API.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -200,28 +201,29 @@ The figure below shows the design of the API if you decide to use it instead. Co
 
 ### Built With
 
-* **API Framework**: FastAPI, Pydantic
-* **Cloud Server**: AWS EC2
-* **Containerization**: Docker, Docker Compose
-* **Continuous Integration (CI) and Continuous Delivery (CD)**: GitHub Actions
-* **Data Version Control**: AWS S3
-* **Experiment Tracking**: MLflow, AWS RDS
-* **Exploratory Data Analysis (EDA)**: Matplotlib, Seaborn
-* **Feature and Artifact Store**: AWS S3
-* **Feature Preprocessing**: Pandas, Numpy
-* **Feature Selection**: Optuna
-* **Hyperparameter Tuning**: Optuna
-* **Logging**: Loguru
-* **Model Registry**: MLflow
-* **Monitoring**: Evidently AI
-* **Programming Language**: Python 3
-* **Project's Template**: Cookiecutter
-* **Testing**: PyTest
-* **Virtual Environment**: Conda Environment, Pip
+- **API Framework**: FastAPI, Pydantic
+- **Cloud Server**: AWS EC2
+- **Containerization**: Docker, Docker Compose
+- **Continuous Integration (CI) and Continuous Delivery (CD)**: GitHub Actions
+- **Data Version Control**: AWS S3
+- **Experiment Tracking**: MLflow, AWS RDS
+- **Exploratory Data Analysis (EDA)**: Matplotlib, Seaborn
+- **Feature and Artifact Store**: AWS S3
+- **Feature Preprocessing**: Pandas, Numpy
+- **Feature Selection**: Optuna
+- **Hyperparameter Tuning**: Optuna
+- **Logging**: Loguru
+- **Model Registry**: MLflow
+- **Monitoring**: Evidently AI
+- **Programming Language**: Python 3
+- **Project's Template**: Cookiecutter
+- **Testing**: PyTest
+- **Virtual Environment**: Conda Environment, Pip
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 This is an example of how you may give instructions on setting up your project locally.
@@ -265,6 +267,7 @@ pre-commit install
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- Usage -->
+
 ## Usage
 
 1. Go to the root folder of the project, then use Docker Compose to build the **dev** containers, which also includes the isolated environment for MLflow.
@@ -297,7 +300,16 @@ docker compose up -d --build dev mlflow
 docker compose up -d --no-deps --build prod
 ```
 
-9. The production environment, also known as the FastAPI documentation, should appear when you open the URL `http://0.0.0.0:5000/docs` in your preferred browser, as seen in the figure below.
+#### Command to run only prod:
+
+```bash
+docker compose up -d mlflow prod
+```
+
+This will Start mlflow (as prod depends on mlflow), Start prod and Expose:
+FastAPI → localhost:80000 and MLflow → localhost:5000
+
+9. The production environment, also known as the FastAPI documentation, should appear when you open the URL `http://0.0.0.0:8000/docs` in your preferred browser, as seen in the figure below.
 
 ![API](images/api.png)
 
@@ -308,6 +320,21 @@ docker compose up -d --no-deps --build prod
 ```bash
 docker compose up -d --no-deps --build test
 ```
+
+#### Use the below command to run only test:
+
+```bash
+docker compose up -d mlflow prod
+docker compose up --no-deps --build test
+```
+
+#### If nothing is running yet, Use below command to Run tests from scratch:
+
+```bash
+docker compose up --build test
+```
+
+With this Docker will Start mlflow, Start prod, Start test, Run pytest and Exit test container.
 
 12. It should take a few seconds for the tests to complete. After that, you can run `docker logs <TEST_CONTAINER_ID>` to see the overall results or view the test coverage by looking at the `cov_html` folder inside the `reports` folder.
 
@@ -320,19 +347,21 @@ DISCLAIMER: Just the workflow in the research environment was tested with AWS be
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
+
 ## Roadmap
 
 - [ ] Add end-to-end test cases.
-- [X] Add a Continuous Delivery (CD) GitHub Action.
+- [x] Add a Continuous Delivery (CD) GitHub Action.
 - [ ] Add a integration test case to assure that the model's performance showed in MLflow is the same when evaluating the model on the same data, but using the API's code.
 - [ ] Integrate uvicorn to FastAPI.
 - [ ] Fix the test GitHub's workflow (it's not finishing because needs connection with FastAPI and MLflow to validate some tests).
-- [X] Fix relative path issues in configuration files.
-- [X] Fix and improve Docker files.
+- [x] Fix relative path issues in configuration files.
+- [x] Fix and improve Docker files.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -340,6 +369,7 @@ Contributions are what make the open source community such an amazing place to l
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
@@ -347,6 +377,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Rafael Greca Vieira - [GitHub](https://github.com/rafaelgreca) - [LinkedIn](https://www.linkedin.com/in/rafaelgreca/) - me@rgrecav.com

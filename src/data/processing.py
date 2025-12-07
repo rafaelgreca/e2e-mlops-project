@@ -2,6 +2,7 @@
 Stores data processing functions, such as for cleaning the data, creating new features,
 enconding categorical columns, and so on.
 """
+from fileinput import filename
 import os
 import pathlib
 from typing import List, Dict
@@ -363,8 +364,19 @@ def load_dataset(path: pathlib.Path, from_aws: bool) -> pd.DataFrame:
         aws_secret_access_key=aws_credentials.AWS_SECRET_KEY,
     )
 
-    upload_path = pathlib.Path.joinpath(general_settings.DATA_PATH, path.split("/")[-1])
+    # upload_path = pathlib.Path.joinpath(general_settings.DATA_PATH, path.split("/")[-1])
+    if isinstance(path, pathlib.Path):
+        filename = path.name
+    else:
+        filename = path.split("/")[-1]  
+    upload_path = general_settings.DATA_PATH / filename
 
-    s3.download_file(path, upload_path)
+    # Correct s3.download_file call with 3 arguments: bucket, key, local_path
+    s3.download_file(
+        aws_credentials.S3,  # Bucket name (first argument)
+        str(path),            # S3 key/object name (second argument)
+        str(upload_path)      # Local file path (third argument)
+    )
+    # s3.download_file(path, upload_path)
 
     return load_dataset(path=upload_path, from_aws=False)
