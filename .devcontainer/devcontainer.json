@@ -1,0 +1,82 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/anaconda-postgres
+{
+	"name": "${localWorkspaceFolderBasename}-devcontainer",
+	"dockerComposeFile": [
+		"../docker-compose.yaml",
+		"docker-compose.dev.override.yaml"
+	],
+	"hostRequirements": {
+		"gpu": "optional"
+	},
+	"service": "app",
+	"workspaceFolder": "/workspace",
+
+	// Container customizations
+	"customizations": {
+		"vscode": {
+			// VS Code-specific settings
+			"settings": {
+				// Python interpreter and module path
+				"python.pythonPath": "/workspace/src",
+				"python.defaultInterpreterPath": "/opt/venv/_dev/bin",
+
+				// Formatting and quality of life
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": "explicit"
+				},
+				"isort.args": ["--profile", "black"],
+				"python.analysis.typeCheckingMode": "basic",
+				"python.languageServer": "Pylance",
+				"editor.defaultFormatter": "ms-python.black-formatter",
+				"notebook.defaultFormatter": "ms-python.black-formatter",
+				"notebook.formatOnSave.enabled": true,
+				"notebook.diff.ignoreMetadata": true,
+				"notebook.diff.ignoreOutputs": true,
+				"notebook.formatOnCellExecution": true,
+				// Linting
+				"python.linting.enabled": true,
+				"python.linting.flake8Enabled": true,
+				"python.linting.mypyEnabled": true,
+				"mypy-type-checker.args": ["--ignore-missing-imports", "--disallow-untyped-defs", "--disallow-incomplete-defs", "--cache-dir", ".mypy_cache"],
+				// Unit testing
+				"python.testing.pytestEnabled": true,
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestPath": "pytest",
+				"python.testing.pytestArgs": [
+					"tests",
+					"--disable-pytest-warnings"
+				],
+				// Docker settings
+				"docker.enableTelemetry": false,
+				"docker.languageserver.diagnostics.enabled": true
+			},
+
+			// Extensions to install in the container
+			"extensions": [
+				"ms-vscode-remote.remote-containers",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.flake8",
+				"ms-python.mypy-type-checker",
+				"ms-python.black-formatter",
+				"ms-python.isort",
+				"ms-azuretools.vscode-docker",
+				"eamodio.gitlens",
+				"ms-toolsai.jupyter",
+				"yzhang.markdown-all-in-one",
+				"DavidAnson.vscode-markdownlint",
+				"ms-toolsai.datawrangler"
+			]
+		}
+	},
+
+	// Commands to run during setup
+	"postCreateCommand": "chmod +x /workspace/.devcontainer/setup.sh && /workspace/.devcontainer/setup.sh",
+
+	// Features to add to the container
+	"features": {
+		"git": "latest"
+	}
+}

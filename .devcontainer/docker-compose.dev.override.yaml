@@ -1,0 +1,22 @@
+services:
+  app:
+    image: e2e:latest
+    working_dir: /e2e-mlops-project/src/
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+
+    depends_on:
+      - mlflow
+    
+    command: ["/bin/bash"]
+    tty: true
+    env_file:
+      - .devcontainer/.env
+  
+    # setting repo root folder as container workspace
+    volumes:
+      - ./:/workspace
+      
+
+  
